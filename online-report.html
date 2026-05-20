@@ -103,6 +103,14 @@
         .loading-overlay.hidden{display:none;}
         .loading-spinner{width:40px;height:40px;border:3px solid #e4e6eb;border-top-color:#6c5ce7;border-radius:50%;animation:spin 1s linear infinite;}
         @keyframes spin{to{transform:rotate(360deg);}}
+        /* 协作功能样式 */
+        .collab-users{display:flex;align-items:center;gap:6px;margin-right:8px;}
+        .collab-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+        .remote-cursor{position:fixed;pointer-events:none;z-index:9998;transition:left .1s,top .1s;}
+        .remote-cursor .cursor-pointer{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:12px solid currentColor;transform:rotate(-45deg);margin-left:-3px;}
+        .remote-cursor .cursor-label{position:absolute;left:14px;top:12px;padding:2px 8px;background:currentColor;color:#fff;font-size:11px;font-weight:600;border-radius:10px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+        .collab-toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;opacity:0;transition:opacity .3s;}
+        .collab-toast.show{opacity:1;}
     </style>
 </head>
 <body>
@@ -115,6 +123,7 @@
             <span class="toolbar-date" id="reportDate"></span>
         </div>
         <div class="toolbar-right" style="display:flex;gap:8px;align-items:center;">
+            <div class="collab-users" id="collabUsers"></div>
             <span class="status-bar" style="border:none;padding:0;"><span class="status-dot" id="statusDot"></span><span id="statusText">已连接</span></span>
             <button class="tool-btn share-link" id="shareBtn" onclick="copyShareLink()">
                 分享链接
@@ -140,6 +149,8 @@
         <div class="resize-handle" id="resizeHandle"></div>
         <div class="content-area" id="contentArea"></div>
     </div>
+    <div id="cursorContainer"></div>
+    <div class="collab-toast" id="collabToast"></div>
 
     <script type="module">
         // 配置
@@ -155,6 +166,127 @@
 
         let reportData = null;
         let allBugs = [];
+
+        // ===== 协作功能 =====
+        const COLORS = ['#6c5ce7', '#00cec9', '#e17055', '#fdcb6e', '#00b894', '#fd79a8', '#0984e3', '#d63031'];
+        const myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+        const myUsername = localStorage.getItem('uirel-username') || '访客' + Math.floor(Math.random() * 100);
+        const myColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const remoteCursors = {};
+        const CURSOR_UPDATE_INTERVAL = 50;
+        const CURSOR_EXPIRE_SECONDS = 10;
+        let cursorThrottleTimer = null;
+        let myCursorEl = null;
+        let heartbeatTimer = null;
+
+        function showCollabToast(msg) {
+            const el = document.getElementById('collabToast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        async function updateMyCursor(x, y) {
+            if (cursorThrottleTimer) return;
+            cursorThrottleTimer = setTimeout(async () => {
+                cursorThrottleTimer = null;
+                try {
+                    await supabase.from('report_cursors').upsert({
+                        report_id: reportId,
+                        user_id: myUserId,
+                        username: myUsername,
+                        x, y,
+                        color: myColor,
+                        last_seen: new Date().toISOString()
+                    }, { onConflict: 'user_id,report_id' });
+                } catch(e) { console.error('cursor update error:', e); }
+            }, CURSOR_UPDATE_INTERVAL);
+        }
+
+        function renderRemoteUsers(cursors) {
+            const container = document.getElementById('collabUsers');
+            const validCursors = cursors.filter(c => c.user_id !== myUserId && Date.now() - new Date(c.last_seen).getTime() < CURSOR_EXPIRE_SECONDS * 1000);
+            
+            // 更新头像列表
+            container.innerHTML = validCursors.map(c => 
+                `<div class="collab-avatar" style="background:${c.color};" title="${c.username}">${c.username.slice(0, 1)}</div>`
+            ).join('');
+            
+            if (validCursors.length > 0) {
+                container.insertAdjacentHTML('beforebegin', `<span style="font-size:11px;color:#888;">+${validCursors.length}人</span>`);
+            }
+
+            // 更新远程光标
+            const cursorContainer = document.getElementById('cursorContainer');
+            validCursors.forEach(c => {
+                if (!remoteCursors[c.user_id]) {
+                    remoteCursors[c.user_id] = document.createElement('div');
+                    remoteCursors[c.user_id].className = 'remote-cursor';
+                    remoteCursors[c.user_id].innerHTML = `<div class="cursor-pointer" style="color:${c.color};"></div><div class="cursor-label" style="background:${c.color};">${c.username}</div>`;
+                    cursorContainer.appendChild(remoteCursors[c.user_id]);
+                    showCollabToast(`${c.username} 加入了`);
+                }
+                remoteCursors[c.user_id].style.left = c.x + 'px';
+                remoteCursors[c.user_id].style.top = c.y + 'px';
+            });
+
+            // 移除过期光标
+            Object.keys(remoteCursors).forEach(uid => {
+                if (!validCursors.find(c => c.user_id === uid)) {
+                    remoteCursors[uid].remove();
+                    delete remoteCursors[uid];
+                }
+            });
+        }
+
+        async function startCollaboration() {
+            // 注册我的光标
+            myCursorEl = document.createElement('div');
+            myCursorEl.className = 'remote-cursor';
+            myCursorEl.style.opacity = '0.4';
+            myCursorEl.innerHTML = `<div class="cursor-pointer" style="color:${myColor};"></div><div class="cursor-label" style="background:${myColor};">${myUsername} (我)</div>`;
+            document.getElementById('cursorContainer').appendChild(myCursorEl);
+
+            // 监听光标变化
+            document.addEventListener('mousemove', e => {
+                if (myCursorEl) {
+                    myCursorEl.style.left = e.clientX + 'px';
+                    myCursorEl.style.top = e.clientY + 'px';
+                }
+                if (reportId) updateMyCursor(e.clientX, e.clientY);
+            });
+
+            // 定时心跳保活
+            heartbeatTimer = setInterval(async () => {
+                try {
+                    const { data: cursors } = await supabase
+                        .from('report_cursors')
+                        .select('*')
+                        .eq('report_id', reportId);
+                    if (cursors) renderRemoteUsers(cursors);
+                } catch(e) {}
+            }, 2000);
+
+            // 初次加载
+            try {
+                const { data: cursors } = await supabase
+                    .from('report_cursors')
+                    .select('*')
+                    .eq('report_id', reportId);
+                if (cursors) renderRemoteUsers(cursors);
+            } catch(e) {}
+
+            // 页面关闭时清除
+            window.addEventListener('beforeunload', async () => {
+                try {
+                    await supabase.from('report_cursors')
+                        .delete()
+                        .eq('user_id', myUserId)
+                        .eq('report_id', reportId);
+                } catch(e) {}
+            });
+        }
+        // ===== 协作功能结束 =====
 
         // 页面加载
         async function init() {
@@ -198,6 +330,9 @@
                 supabase.channel('bugs-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'bugs', filter: `report_id=eq.${reportId}` }, handleBugChange)
                     .subscribe();
+
+                // 启动协作功能
+                startCollaboration();
 
             } catch (err) {
                 console.error('加载失败:', err);
