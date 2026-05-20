@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>UI-REL 在线报告</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html,body{height:100%;overflow:hidden;}
+        body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f0f2f5;color:#333;line-height:1.6;display:flex;flex-direction:column;transition:background .25s,color .25s;}
+        body.dark{background:#16162a;color:#d0d0dc;}
+        body.dark .nav-sidebar{background:#1e1e32;border-color:#2a2a44;}
+        body.dark .nav-item{background:#252540;border-color:#333355;}
+        body.dark .nav-item:hover,.nav-item.active{background:#2e2e50;}
+        body.dark .nav-title{color:#d0d0dc;}
+        body.dark .nav-meta{color:#888;}
+        body.dark .task-section{border-color:#333355;}
+        body.dark .task-title{color:#d0d0dc;}
+        body.dark .stat-card{background:#22223a;border-color:#333355;}
+        body.dark .main-img-wrap img{border-color:#333355;}
+        body.dark .img-controls{background:rgba(30,30,55,.7);}
+        body.dark .bug-table{background:#22223a;border-color:#333355;}
+        body.dark .bug-table th{background:#1a1a30;color:#999;border-color:#333355;}
+        body.dark .bug-table td{border-color:#2a2a48;color:#ccc;}
+        .report-wrap{display:flex;flex:1;overflow:hidden;}
+        .nav-sidebar{width:240px;flex-shrink:0;height:100%;background:#fff;border-right:1px solid #e4e6eb;display:flex;flex-direction:column;overflow:hidden;transition:background .25s,border-color .25s;}
+        .nav-header{flex-shrink:0;padding:16px;border-bottom:1px solid #eee;background:#fff;}
+        .nav-summary{display:flex;gap:12px;}
+        .nav-summary-item{text-align:center;}
+        .nav-summary-val{font-size:18px;font-weight:700;color:#6c5ce7;}
+        .nav-summary-lbl{font-size:10px;color:#999;text-transform:uppercase;}
+        .nav-list{flex:1;overflow-y:auto;padding:8px;}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .2s;background:#f8f9fc;border-color:#eee;margin-bottom:4px;}
+        .nav-item:hover{background:#f0f1f8;border-color:#d0d0e8;}
+        .nav-item.active{background:#6c5ce7;border-color:#6c5ce7;}
+        .nav-item.active .nav-title,.nav-item.active .nav-meta{color:#fff;}
+        .nav-thumb-wrap{width:40px;height:40px;flex-shrink:0;border-radius:6px;overflow:hidden;background:#eee;}
+        .nav-thumb{width:100%;height:100%;object-fit:cover;}
+        .nav-info{flex:1;min-width:0;}
+        .nav-title{font-size:12px;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .nav-meta{font-size:10px;color:#888;}
+        .resize-handle{width:8px;cursor:col-resize;flex-shrink:0;background:#e4e6eb;transition:background .2s;position:relative;z-index:10;}
+        .resize-handle:hover,.resize-handle:active{background:#6c5ce7;}
+        .content-area{flex:1;overflow-y:auto;padding:20px;}
+        .task-section{margin-bottom:30px;padding:20px;background:#fff;border-radius:12px;border:1px solid #e4e6eb;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:all .25s;}
+        body.dark .task-section{background:#1e1e32;border-color:#333355;}
+        .task-header{margin-bottom:16px;}
+        .task-title-row{display:flex;align-items:center;gap:10px;}
+        .task-title{font-size:18px;font-weight:700;color:#222;}
+        body.dark .task-title{color:#d0d0dc;}
+        .task-stats{display:flex;gap:16px;margin-top:12px;}
+        .stat-card{flex:1;padding:12px;background:#f8f9fc;border-radius:8px;border:1px solid #eee;text-align:center;transition:all .25s;}
+        body.dark .stat-card{background:#22223a;border-color:#333355;}
+        .stat-val{font-size:20px;font-weight:700;color:#6c5ce7;}
+        .stat-val.danger{color:#ff5c5c;}
+        .stat-val.success{color:#00d68f;}
+        .stat-lbl{font-size:10px;color:#888;text-transform:uppercase;margin-top:4px;}
+        .main-img-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+        .img-pair{position:relative;width:100%;max-width:800px;border-radius:8px;overflow:hidden;border:2px solid #e4e6eb;transition:border-color .25s;}
+        .img-pair img{width:100%;height:auto;display:block;}
+        .overlay-img{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.5;pointer-events:none;}
+        .r-bug-marker{position:absolute;transform:translate(-50%,-50%);z-index:10;cursor:pointer;}
+        .r-bug-marker.dimmed{opacity:.2;}
+        .r-bug-dot{width:34px;height:34px;border-radius:50%;background:#ff5c5c;border:3px solid white;box-shadow:0 2px 10px rgba(255,92,92,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1),background .25s ease;}
+        .r-bug-dot.checked-green{background:#00d68f;box-shadow:0 2px 10px rgba(0,214,143,.4);}
+        .r-bug-dot.unchecked-red{background:#ff5c5c;}
+        .r-bug-num{font-size:14px;font-weight:800;color:white;}
+        .r-bug-label{position:absolute;top:20px;left:18px;background:rgba(255,92,92,.95);color:white;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap;box-shadow:0 2px 8px rgba(255,92,92,.35);pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .2s ease,transform .2s ease;}
+        .r-bug-marker:hover .r-bug-dot{transform:scale(1.3);}
+        .r-bug-marker:hover .r-bug-label{opacity:1;transform:none;}
+        .img-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;padding:8px 16px;background:rgba(255,255,255,.65);border-radius:10px;backdrop-filter:blur(8px);}
+        body.dark .img-controls{background:rgba(30,30,55,.7);}
+        .img-controls label{font-size:12px;color:#666;font-weight:500;}
+        body.dark .img-controls label{color:#999;}
+        .img-controls input[type=range]{width:120px;height:4px;-webkit-appearance:none;appearance:none;background:#ddd;border-radius:2px;outline:none;}
+        .img-controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#6c5ce7;cursor:pointer;}
+        .section-title{font-size:13px;font-weight:700;margin:16px 0 10px;color:#222;display:flex;align-items:center;gap:6px;}
+        body.dark .section-title{color:#d0d0dc;}
+        .section-title::before{content:"";width:4px;height:14px;background:#6c5ce7;border-radius:2px;}
+        .bug-table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e4e6eb;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:all .25s;}
+        .bug-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#888;background:#fafbfc;padding:8px 12px;border-bottom:2px solid #eee;}
+        .bug-table td{padding:8px 12px;border-bottom:1px solid #f7f8fa;font-size:12px;vertical-align:top;}
+        .bug-table tr:last-child td{border-bottom:none;}
+        .bug-table tr:hover td{background:#fef5f5;}
+        .r-bug-cb{width:16px;height:16px;accent-color:#00d68f;cursor:pointer;}
+        .r-bug-id-td{color:#ff5c5c;font-weight:700;transition:color .25s;}
+        .toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;background:#fff;border-bottom:1px solid #eee;height:50px;flex-shrink:0;z-index:100;}
+        body.dark .toolbar{background:#1e1e32;border-color:#333355;}
+        .toolbar-left{display:flex;align-items:center;gap:12px;}
+        .toolbar-title{font-size:14px;font-weight:600;color:#333;}
+        body.dark .toolbar-title{color:#d0d0dc;}
+        .toolbar-date{font-size:11px;color:#888;}
+        .tool-btn{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #ccc;background:#fff;transition:all .2s;color:#666;}
+        .tool-btn:hover{border-color:#6c5ce7;color:#6c5ce7;background:#fafaff;}
+        .status-bar{padding:8px 16px;background:#fff;border-bottom:1px solid #eee;font-size:11px;color:#888;display:flex;align-items:center;gap:6px;}
+        body.dark .status-bar{background:#1e1e32;border-color:#333355;}
+        .status-dot{width:8px;height:8px;border-radius:50%;background:#00d68f;}
+        .status-dot.offline{background:#ff5c5c;}
+        .share-link{position:relative;}
+        .share-link .tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}
+        .share-link:hover .tooltip{opacity:1;}
+        .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:9999;}
+        .loading-overlay.hidden{display:none;}
+        .loading-spinner{width:40px;height:40px;border:3px solid #e4e6eb;border-top-color:#6c5ce7;border-radius:50%;animation:spin 1s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <span class="toolbar-title" id="reportTitle">UI-REL 在线报告</span>
+            <span class="toolbar-date" id="reportDate"></span>
+        </div>
+        <div class="toolbar-right" style="display:flex;gap:8px;align-items:center;">
+            <span class="status-bar" style="border:none;padding:0;"><span class="status-dot" id="statusDot"></span><span id="statusText">已连接</span></span>
+            <button class="tool-btn share-link" id="shareBtn" onclick="copyShareLink()">
+                分享链接
+                <span class="tooltip" id="copyTip">已复制!</span>
+            </button>
+            <button class="tool-btn" onclick="toggleTheme()">&#9788; 主题</button>
+        </div>
+    </div>
+    <div class="status-bar" id="statusBar">
+        <span id="bugProgress"></span>
+    </div>
+    <div class="report-wrap">
+        <nav class="nav-sidebar" id="navSidebar">
+            <div class="nav-header">
+                <div class="nav-summary">
+                    <div class="nav-summary-item"><div class="nav-summary-val" id="navTaskCount">-</div><div class="nav-summary-lbl">任务</div></div>
+                    <div class="nav-summary-item"><div class="nav-summary-val" id="navBugCount">-</div><div class="nav-summary-lbl">待修复</div></div>
+                    <div class="nav-summary-item"><div class="nav-summary-val" id="navFixedCount" style="color:#00d68f;">-</div><div class="nav-summary-lbl">已修复</div></div>
+                </div>
+            </div>
+            <div class="nav-list" id="navList"></div>
+        </nav>
+        <div class="resize-handle" id="resizeHandle"></div>
+        <div class="content-area" id="contentArea"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 配置
+        const SUPABASE_URL = 'https://ijamfnfbypalayjgagrb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYW1mbmZieXBhbGF5amdhZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTkwMzgsImV4cCI6MjA5NDc5NTAzOH0.HGol63UNswYqLwiaNNv2yCUXayz8expgonYsi517rbo';
+        
+        const { createClient } = supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 获取 URL 参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const reportId = urlParams.get('id');
+
+        let reportData = null;
+        let allBugs = [];
+
+        // 页面加载
+        async function init() {
+            if (!reportId) {
+                document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center;"><h2>无效的报告链接</h2><p>请检查链接是否正确</p></div>';
+                return;
+            }
+
+            try {
+                // 加载报告数据
+                const { data: report, error } = await supabase
+                    .from('reports')
+                    .select('*')
+                    .eq('report_id', reportId)
+                    .single();
+
+                if (error || !report) {
+                    document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center;"><h2>报告不存在</h2><p>可能已被删除或链接已失效</p></div>';
+                    return;
+                }
+
+                // 加载 Bug 数据
+                const { data: bugs } = await supabase
+                    .from('bugs')
+                    .select('*')
+                    .eq('report_id', reportId);
+
+                allBugs = bugs || [];
+                reportData = report;
+
+                document.getElementById('reportTitle').textContent = report.title;
+                document.getElementById('reportDate').textContent = new Date(report.created_at).toLocaleString('zh-CN');
+                document.getElementById('navTaskCount').textContent = report.task_count;
+                document.getElementById('navBugCount').textContent = allBugs.filter(b => !b.checked).length;
+                document.getElementById('navFixedCount').textContent = allBugs.filter(b => b.checked).length;
+
+                updateBugProgress();
+                renderTasks();
+
+                // 订阅实时更新
+                supabase.channel('bugs-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'bugs', filter: `report_id=eq.${reportId}` }, handleBugChange)
+                    .subscribe();
+
+            } catch (err) {
+                console.error('加载失败:', err);
+                document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center;"><h2>加载失败</h2><p>' + err.message + '</p></div>';
+                document.getElementById('statusDot').classList.add('offline');
+                document.getElementById('statusText').textContent = '离线';
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        // 处理 Bug 状态变更
+        async function handleBugChange(payload) {
+            const bug = payload.new;
+            if (!bug) return;
+
+            // 更新本地数据
+            const idx = allBugs.findIndex(b => b.id === bug.id);
+            if (idx >= 0) {
+                allBugs[idx] = bug;
+            }
+
+            // 更新 UI
+            const cb = document.querySelector(`.r-bug-cb[data-id="${bug.bug_id}"][data-task="${bug.task_index}"]`);
+            if (cb) {
+                cb.checked = bug.checked;
+                updateBugUI(cb);
+            }
+
+            updateStats();
+            updateBugProgress();
+        }
+
+        // 切换 Bug 状态
+        async function toggleBug(taskIndex, bugId, checkbox) {
+            const bug = allBugs.find(b => b.task_index === taskIndex && b.bug_id === bugId);
+            if (!bug) return;
+
+            const newChecked = checkbox.checked;
+            const username = localStorage.getItem('uirel-username') || '访客';
+
+            // 乐观更新
+            updateBugUI(checkbox);
+
+            const { error } = await supabase
+                .from('bugs')
+                .update({ 
+                    checked: newChecked, 
+                    checked_by: username,
+                    checked_at: new Date().toISOString()
+                })
+                .eq('id', bug.id);
+
+            if (error) {
+                checkbox.checked = !newChecked;
+                updateBugUI(checkbox);
+                alert('更新失败: ' + error.message);
+            }
+
+            updateStats();
+            updateBugProgress();
+        }
+
+        function updateBugUI(cb) {
+            const taskIndex = cb.dataset.task;
+            const bugId = cb.dataset.id;
+            const checked = cb.checked;
+
+            const dot = document.querySelector(`.r-bug-dot[data-id="${bugId}"][data-task="${taskIndex}"]`);
+            if (dot) {
+                dot.classList.toggle('checked-green', checked);
+                dot.classList.toggle('unchecked-red', !checked);
+            }
+
+            const marker = document.querySelector(`.r-bug-marker[data-id="${bugId}"][data-task="${taskIndex}"]`);
+            if (marker) marker.classList.toggle('dimmed', !checked);
+
+            const td = cb.closest('tr').querySelector('.r-bug-id-td');
+            if (td) td.style.color = checked ? '#00d68f' : '#ff5c5c';
+        }
+
+        function updateStats() {
+            const checked = allBugs.filter(b => b.checked).length;
+            const total = allBugs.length;
+            document.getElementById('navBugCount').textContent = total - checked;
+            document.getElementById('navFixedCount').textContent = checked;
+        }
+
+        function updateBugProgress() {
+            const total = allBugs.length;
+            const checked = allBugs.filter(b => b.checked).length;
+            const pct = total > 0 ? Math.round(checked / total * 100) : 0;
+            document.getElementById('bugProgress').textContent = `修复进度: ${checked}/${total} (${pct}%)`;
+        }
+
+        // 渲染任务
+        function renderTasks() {
+            const navList = document.getElementById('navList');
+            const contentArea = document.getElementById('contentArea');
+            
+            navList.innerHTML = '';
+            contentArea.innerHTML = '';
+
+            if (!reportData || !reportData.task_data) {
+                contentArea.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">暂无任务数据</div>';
+                return;
+            }
+
+            const tasks = reportData.task_data;
+            
+            tasks.forEach((task, i) => {
+                // 导航项
+                const navItem = document.createElement('div');
+                navItem.className = 'nav-item';
+                navItem.dataset.target = 'task-' + i;
+                navItem.onclick = () => scrollToTask('task-' + i);
+                navItem.innerHTML = `
+                    <div class="nav-thumb-wrap">${task.thumb || ''}</div>
+                    <div class="nav-info">
+                        <div class="nav-title">${task.frameName || '任务 ' + (i+1)}</div>
+                        <div class="nav-meta">${task.bugs || 0} 个 Bug</div>
+                    </div>
+                `;
+                navList.appendChild(navItem);
+
+                // 任务内容
+                const section = document.createElement('section');
+                section.className = 'task-section';
+                section.id = 'task-' + i;
+                
+                // 获取该任务的 bugs
+                const taskBugs = allBugs.filter(b => b.task_index === i);
+                const checkedCount = taskBugs.filter(b => b.checked).length;
+                
+                section.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-title-row">
+                            <h2 class="task-title">${task.frameName || '任务 ' + (i+1)}</h2>
+                        </div>
+                        <div class="task-stats">
+                            <div class="stat-card"><div class="stat-val">${task.diffPercent || 0}%</div><div class="stat-lbl">差异率</div></div>
+                            <div class="stat-card"><div class="stat-val">${taskBugs.length}</div><div class="stat-lbl">Bug 标记</div></div>
+                            <div class="stat-card"><div class="stat-val success">${checkedCount}</div><div class="stat-lbl">已修复</div></div>
+                        </div>
+                    </div>
+                    <div class="main-img-wrap">
+                        <div class="img-pair" id="task-${i}-pair">
+                            <img src="${task.designImg}" alt="设计稿" />
+                            <img class="overlay-img" id="task-${i}-overlay" src="${task.screenshotImg}" />
+                        </div>
+                        <div class="img-controls">
+                            <span style="font-size:11px;color:#888;">设计稿</span>
+                            <input type="range" min="0" max="100" value="0" oninput="updateOverlay(this, ${i})" />
+                            <span style="font-size:11px;color:#888;">截图</span>
+                        </div>
+                    </div>
+                    ${taskBugs.length > 0 ? `
+                    <div class="section-title">Bug 标记列表 (${checkedCount}/${taskBugs.length} 已修复)</div>
+                    <table class="bug-table">
+                        <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th></tr></thead>
+                        <tbody>
+                            ${taskBugs.map(bug => `
+                            <tr>
+                                <td><input type="checkbox" class="r-bug-cb" data-id="${bug.bug_id}" data-task="${i}" ${bug.checked ? 'checked' : ''} onchange="toggleBug(${i}, ${bug.bug_id}, this)" /></td>
+                                <td class="r-bug-id-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">#${bug.bug_id}</td>
+                                <td>${bug.text || '-'}</td>
+                                <td style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
+                            </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    ` : '<div style="color:#888;text-align:center;padding:20px;">无 Bug 标记</div>'}
+                `;
+                contentArea.appendChild(section);
+
+                // 添加 Bug 标记点
+                if (taskBugs.length > 0) {
+                    const pair = section.querySelector('.img-pair');
+                    taskBugs.forEach(bug => {
+                        const pctX = bug.x / task.imgW * 100;
+                        const pctY = bug.y / task.imgH * 100;
+                        const marker = document.createElement('div');
+                        marker.className = 'r-bug-marker' + (bug.checked ? '' : '');
+                        marker.dataset.id = bug.bug_id;
+                        marker.dataset.task = i;
+                        marker.style.cssText = `left:${pctX}%;top:${pctY}%;`;
+                        if (bug.checked) marker.classList.add('dimmed');
+                        marker.innerHTML = `
+                            <div class="r-bug-dot ${bug.checked ? 'checked-green' : ''}" data-id="${bug.bug_id}" data-task="${i}">
+                                <span class="r-bug-num">${bug.bug_id}</span>
+                            </div>
+                        `;
+                        pair.appendChild(marker);
+                    });
+                }
+            });
+
+            // 更新 Bug UI 状态
+            document.querySelectorAll('.r-bug-cb').forEach(cb => {
+                if (cb.checked) updateBugUI(cb);
+            });
+        }
+
+        function updateOverlay(slider, taskIndex) {
+            const overlay = document.getElementById(`task-${taskIndex}-overlay`);
+            if (overlay) overlay.style.opacity = slider.value / 100;
+        }
+
+        function scrollToTask(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelector(`.nav-item[data-target="${id}"]`)?.classList.add('active');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('uirel-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        function copyShareLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const tip = document.getElementById('copyTip');
+                tip.style.opacity = '1';
+                setTimeout(() => tip.style.opacity = '0', 1500);
+            });
+        }
+
+        // 侧边栏拖拽
+        if (document.getElementById('resizeHandle') && document.getElementById('navSidebar')) {
+            document.getElementById('resizeHandle').addEventListener('mousedown', e => {
+                e.preventDefault();
+                const onMove = e => {
+                    const w = Math.max(160, Math.min(400, e.clientX));
+                    document.getElementById('navSidebar').style.width = w + 'px';
+                };
+                const onUp = () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                };
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+        }
+
+        // 初始化
+        (function() {
+            try {
+                if (localStorage.getItem('uirel-theme') === 'dark') document.body.classList.add('dark');
+            } catch(e) {}
+            init();
+        })();
+    </script>
+</body>
+</html>
