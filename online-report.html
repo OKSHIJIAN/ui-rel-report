@@ -198,7 +198,7 @@
                         x, y,
                         color: myColor,
                         last_seen: new Date().toISOString()
-                    }, { onConflict: 'user_id,report_id' });
+                    });
                 } catch(e) { console.error('cursor update error:', e); }
             }, CURSOR_UPDATE_INTERVAL);
         }
@@ -208,13 +208,15 @@
             const validCursors = cursors.filter(c => c.user_id !== myUserId && Date.now() - new Date(c.last_seen).getTime() < CURSOR_EXPIRE_SECONDS * 1000);
             
             // 更新头像列表
+            const existingSpan = container.parentElement.querySelector('.collab-count');
+            if (existingSpan) existingSpan.remove();
+            
+            if (validCursors.length > 0) {
+                container.insertAdjacentHTML('beforebegin', `<span class="collab-count" style="font-size:11px;color:#888;margin-right:4px;">+${validCursors.length}人</span>`);
+            }
             container.innerHTML = validCursors.map(c => 
                 `<div class="collab-avatar" style="background:${c.color};" title="${c.username}">${c.username.slice(0, 1)}</div>`
             ).join('');
-            
-            if (validCursors.length > 0) {
-                container.insertAdjacentHTML('beforebegin', `<span style="font-size:11px;color:#888;">+${validCursors.length}人</span>`);
-            }
 
             // 更新远程光标
             const cursorContainer = document.getElementById('cursorContainer');
@@ -259,13 +261,24 @@
             // 定时心跳保活
             heartbeatTimer = setInterval(async () => {
                 try {
+                    // 先更新自己的在线状态
+                    await supabase.from('report_cursors').upsert({
+                        report_id: reportId,
+                        user_id: myUserId,
+                        username: myUsername,
+                        x: myCursorEl ? parseInt(myCursorEl.style.left) || 0 : 0,
+                        y: myCursorEl ? parseInt(myCursorEl.style.top) || 0 : 0,
+                        color: myColor,
+                        last_seen: new Date().toISOString()
+                    });
+                    // 再拉取所有光标
                     const { data: cursors } = await supabase
                         .from('report_cursors')
                         .select('*')
                         .eq('report_id', reportId);
                     if (cursors) renderRemoteUsers(cursors);
-                } catch(e) {}
-            }, 2000);
+                } catch(e) { console.error('heartbeat error:', e); }
+            }, 500);
 
             // 初次加载
             try {
