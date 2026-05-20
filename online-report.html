@@ -141,13 +141,12 @@
         <div class="content-area" id="contentArea"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
+    <script type="module">
         // 配置
         const SUPABASE_URL = 'https://ijamfnfbypalayjgagrb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYW1mbmZieXBhbGF5amdhZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTkwMzgsImV4cCI6MjA5NDc5NTAzOH0.HGol63UNswYqLwiaNNv2yCUXayz8expgonYsi517rbo';
         
-        const { createClient } = supabase;
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // 获取 URL 参数
