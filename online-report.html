@@ -153,6 +153,9 @@
     <div class="collab-toast" id="collabToast"></div>
 
     <script type="module">
+        // 版本号用于清除缓存
+        const VERSION = 'v2';
+        
         // 配置
         const SUPABASE_URL = 'https://ijamfnfbypalayjgagrb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYW1mbmZieXBhbGF5amdhZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTkwMzgsImV4cCI6MjA5NDc5NTAzOH0.HGol63UNswYqLwiaNNv2yCUXayz8expgonYsi517rbo';
@@ -191,14 +194,18 @@
             cursorThrottleTimer = setTimeout(async () => {
                 cursorThrottleTimer = null;
                 try {
-                    await supabase.from('report_cursors').upsert({
+                    const { error } = await supabase.from('report_cursors').upsert({
                         report_id: reportId,
                         user_id: myUserId,
                         username: myUsername,
                         x, y,
                         color: myColor,
                         last_seen: new Date().toISOString()
+                    }, { 
+                        onConflict: 'report_id,user_id',
+                        ignoreDuplicates: false 
                     });
+                    if (error) console.error('cursor upsert error:', error);
                 } catch(e) { console.error('cursor update error:', e); }
             }, CURSOR_UPDATE_INTERVAL);
         }
@@ -262,7 +269,7 @@
             heartbeatTimer = setInterval(async () => {
                 try {
                     // 先更新自己的在线状态
-                    await supabase.from('report_cursors').upsert({
+                    const { error: upsertErr } = await supabase.from('report_cursors').upsert({
                         report_id: reportId,
                         user_id: myUserId,
                         username: myUsername,
@@ -270,7 +277,12 @@
                         y: myCursorEl ? parseInt(myCursorEl.style.top) || 0 : 0,
                         color: myColor,
                         last_seen: new Date().toISOString()
+                    }, { 
+                        onConflict: 'report_id,user_id',
+                        ignoreDuplicates: false 
                     });
+                    if (upsertErr) console.error('heartbeat upsert error:', upsertErr);
+                    
                     // 再拉取所有光标
                     const { data: cursors } = await supabase
                         .from('report_cursors')
