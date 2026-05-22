@@ -595,6 +595,11 @@
             });
         }
 
+        // 暴露到全局作用域（HTML onchange/onclick 属性需要）
+        window.toggleBug = toggleBug;
+        window.copyShareLink = copyShareLink;
+        window.toggleTheme = toggleTheme;
+
         // 侧边栏拖拽
         if (document.getElementById('resizeHandle') && document.getElementById('navSidebar')) {
             document.getElementById('resizeHandle').addEventListener('mousedown', e => {
