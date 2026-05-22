@@ -570,6 +570,8 @@
             const overlay = document.getElementById(`task-${taskIndex}-overlay`);
             if (overlay) overlay.style.opacity = slider.value / 100;
         }
+        // 暴露到全局作用域，使 HTML oninput 属性可调用
+        window.updateOverlay = updateOverlay;
 
         function scrollToTask(id) {
             const el = document.getElementById(id);
