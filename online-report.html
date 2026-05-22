@@ -120,6 +120,9 @@
         .remote-cursor .cursor-label{position:absolute;left:14px;top:12px;padding:2px 8px;background:currentColor;color:#fff;font-size:11px;font-weight:600;border-radius:10px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
         .collab-toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;opacity:0;transition:opacity .3s;}
         .collab-toast.show{opacity:1;}
+        .pri-badge.pri-p1{background:#ff3b3b;}
+        .pri-badge.pri-p2{background:#ff8c00;}
+        .pri-badge.pri-p3{background:#e6a800;}
     </style>
 </head>
 <body>
@@ -160,7 +163,7 @@
     </div>
     <div id="cursorContainer"></div>
     <div class="collab-toast" id="collabToast"></div>
-    <div style="position:fixed;bottom:8px;right:12px;font-size:10px;color:#bbb;z-index:9999;" id="versionLabel">20260522-1747</div>
+    <div style="position:fixed;bottom:8px;right:12px;font-size:10px;color:#bbb;z-index:9999;" id="versionLabel">20260522-1807</div>
 
     <script type="module">
         // 版本号: 20260522-1608
@@ -551,16 +554,21 @@
                     ${taskBugs.length > 0 ? `
                     <div class="section-title bug-section-title">Bug 标记列表 (${checkedCount}/${taskBugs.length} 已修复)</div>
                     <table class="bug-table">
-                        <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th></tr></thead>
+                        <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th><th style="width:50px;">优先级</th></tr></thead>
                         <tbody>
-                            ${taskBugs.map(bug => `
+                            ${taskBugs.map(bug => {
+                                var pri = bug.priority || 'P3';
+                                var priColor = {P1:'#ff3b3b',P2:'#ff8c00',P3:'#e6a800'}[pri]||'#e6a800';
+                                var priClass = 'pri-' + pri.toLowerCase();
+                                return `
                             <tr>
                                 <td><input type="checkbox" class="r-bug-cb" data-id="${bug.bug_id}" data-task="${i}" ${bug.checked ? 'checked' : ''} onchange="toggleBug(${i}, ${bug.bug_id}, this)" /></td>
                                 <td class="r-bug-id-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">#${bug.bug_id}</td>
                                 <td>${bug.text || '-'}</td>
                                 <td class="r-bug-status-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
+                                <td><span class="pri-badge ${priClass}" style="display:inline-block;padding:1px 6px;font-size:10px;font-weight:700;font-family:JetBrains Mono,monospace;border-radius:3px;color:#fff;background:${priColor};">${pri}</span></td>
                             </tr>
-                            `).join('')}
+                            `}).join('')}
                         </tbody>
                     </table>
                     ` : '<div style="color:#888;text-align:center;padding:20px;">无 Bug 标记</div>'}
