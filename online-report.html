@@ -58,7 +58,7 @@
         .main-img-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
         .img-pair{position:relative;width:100%;max-width:800px;border-radius:8px;overflow:hidden;border:2px solid #e4e6eb;transition:border-color .25s;}
         .img-pair img{width:100%;height:auto;display:block;}
-        .overlay-img{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;}
+        .overlay-img{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.5;pointer-events:none;}
         .r-bug-marker{position:absolute;transform:translate(-50%,-50%);z-index:10;cursor:pointer;}
         .r-bug-marker.dimmed{opacity:.2;}
         .r-bug-dot{width:34px;height:34px;border-radius:50%;background:#ff5c5c;border:3px solid white;box-shadow:0 2px 10px rgba(255,92,92,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1),background .25s ease;}
@@ -151,7 +151,7 @@
     </div>
     <div id="cursorContainer"></div>
     <div class="collab-toast" id="collabToast"></div>
-    <div style="position:fixed;bottom:8px;left:12px;font-size:10px;color:#bbb;z-index:9999;" id="versionLabel">20260522-1608</div>
+    <div style="position:fixed;bottom:8px;left:12px;font-size:10px;color:#bbb;z-index:9999;" id="versionLabel">20260522-1708</div>
 
     <script type="module">
         // 版本号: 20260522-1608
@@ -440,8 +440,28 @@
             const marker = document.querySelector(`.r-bug-marker[data-id="${bugId}"][data-task="${taskIndex}"]`);
             if (marker) marker.classList.toggle('dimmed', !checked);
 
-            const td = cb.closest('tr').querySelector('.r-bug-id-td');
-            if (td) td.style.color = checked ? '#00d68f' : '#ff5c5c';
+            // 更新表格中 Bug ID 颜色
+            const tr = cb.closest('tr');
+            const tdId = tr.querySelector('.r-bug-id-td');
+            if (tdId) tdId.style.color = checked ? '#00d68f' : '#ff5c5c';
+
+            // 立即更新状态文字列
+            const statusTd = tr.querySelector('.r-bug-status-td');
+            if (statusTd) {
+                statusTd.textContent = checked ? '✓ 已修复' : '待处理';
+                statusTd.style.color = checked ? '#00d68f' : '#ff5c5c';
+            }
+
+            // 更新该任务的 "Bug 标记列表 (X/Y 已修复)" 节标题
+            const taskSection = document.getElementById('task-' + taskIndex);
+            if (taskSection) {
+                const sectionTitle = taskSection.querySelector('.bug-section-title');
+                if (sectionTitle) {
+                    const taskBugs = allBugs.filter(b => b.task_index === parseInt(taskIndex));
+                    const taskChecked = taskBugs.filter(b => b.checked).length;
+                    sectionTitle.textContent = `Bug 标记列表 (${taskChecked}/${taskBugs.length} 已修复)`;
+                }
+            }
         }
 
         function updateStats() {
@@ -515,12 +535,12 @@
                         </div>
                         <div class="img-controls">
                             <span style="font-size:11px;color:#888;">设计稿</span>
-                            <input type="range" min="0" max="100" value="0" oninput="updateOverlay(this, ${i})" />
+                            <input type="range" min="0" max="100" value="50" oninput="updateOverlay(this, ${i})" />
                             <span style="font-size:11px;color:#888;">截图</span>
                         </div>
                     </div>
                     ${taskBugs.length > 0 ? `
-                    <div class="section-title">Bug 标记列表 (${checkedCount}/${taskBugs.length} 已修复)</div>
+                    <div class="section-title bug-section-title">Bug 标记列表 (${checkedCount}/${taskBugs.length} 已修复)</div>
                     <table class="bug-table">
                         <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th></tr></thead>
                         <tbody>
@@ -529,7 +549,7 @@
                                 <td><input type="checkbox" class="r-bug-cb" data-id="${bug.bug_id}" data-task="${i}" ${bug.checked ? 'checked' : ''} onchange="toggleBug(${i}, ${bug.bug_id}, this)" /></td>
                                 <td class="r-bug-id-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">#${bug.bug_id}</td>
                                 <td>${bug.text || '-'}</td>
-                                <td style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
+                                <td class="r-bug-status-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
                             </tr>
                             `).join('')}
                         </tbody>
