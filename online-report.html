@@ -36,6 +36,7 @@
         body.dark .toolbar{background:#1e1e32;border-color:#333355;}
         body.dark .toolbar-title{color:#d0d0dc;}
         body.dark .toolbar-date{color:#999;}
+        body.dark .toolbar-user{color:#777;}
         body.dark .tool-btn{background:#252540;border-color:#444;color:#ccc;}
         body.dark .tool-btn:hover{background:#2e2e50;border-color:#6c5ce7;color:#6c5ce7;}
         body.dark .status-bar{background:#1e1e32;border-color:#333355;color:#999;}
@@ -137,10 +138,13 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
-    <div class="toolbar">
-        <div class="toolbar-left">
-            <span class="toolbar-title" id="reportTitle">UI-REL 在线报告</span>
-            <span class="toolbar-date" id="reportDate"></span>
+    <div class="toolbar" style="height:auto;padding:10px 16px;">
+        <div class="toolbar-left" style="align-items:flex-start;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <span class="toolbar-title" id="reportTitle">UI-REL 在线报告</span>
+                <span class="toolbar-user" id="reportUser" style="font-size:11px;color:#888;"></span>
+                <span class="toolbar-date" id="reportDate" style="font-size:11px;color:#888;"></span>
+            </div>
         </div>
         <div class="toolbar-right" style="display:flex;gap:8px;align-items:center;">
             <div class="collab-users" id="collabUsers"></div>
@@ -367,6 +371,17 @@
 
                 document.getElementById('reportTitle').textContent = report.title;
                 document.getElementById('reportDate').textContent = new Date(report.created_at).toLocaleString('zh-CN');
+                
+                // 解析 title 中的用户名（‖ 分隔：title‖username）
+                var titleParts = report.title.split('‖');
+                if (titleParts.length > 1) {
+                    document.getElementById('reportTitle').textContent = titleParts[0];
+                    document.getElementById('reportUser').textContent = titleParts[1];
+                } else {
+                    document.getElementById('reportTitle').textContent = report.title;
+                    document.getElementById('reportUser').textContent = '';
+                }
+                
                 document.getElementById('navTaskCount').textContent = report.task_count;
                 document.getElementById('navBugCount').textContent = allBugs.filter(b => !b.checked).length;
                 document.getElementById('navFixedCount').textContent = allBugs.filter(b => b.checked).length;
