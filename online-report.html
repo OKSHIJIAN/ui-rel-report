@@ -184,6 +184,89 @@
         body.dark .user-dropdown-item.danger{color:#ff6b6b;border-top-color:#333355;}
         .user-dropdown-email{font-size:11px;color:#888;padding:6px 16px 8px;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         body.dark .user-dropdown-email{border-bottom-color:#333355;}
+        /* ===== 我的报告侧滑面板 ===== */
+        .myreports-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:10002;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
+        .myreports-overlay.show{opacity:1;pointer-events:auto;}
+        .myreports-panel{width:420px;max-width:90vw;height:100%;background:#1a1c2e;box-shadow:-8px 0 40px rgba(0,0,0,.3);display:flex;flex-direction:column;transform:translateX(20px);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+        .myreports-overlay.show .myreports-panel{transform:translateX(0);}
+        .myreports-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #2a2a44;flex-shrink:0;}
+        .myreports-header h2{font-size:18px;font-weight:700;color:#d0d0dc;display:flex;align-items:center;gap:8px;}
+        .myreports-close{width:32px;height:32px;border-radius:50%;border:none;background:#2a2a44;color:#999;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .myreports-close:hover{background:#444466;color:#fff;}
+        .myreports-body{flex:1;overflow-y:auto;padding:12px;}
+        .myreports-loading{text-align:center;padding:40px 0;color:#888;font-size:14px;}
+        .myreports-empty{text-align:center;padding:60px 20px;color:#666;font-size:14px;}
+        .myreports-item{display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:8px;background:#22223a;border-radius:10px;border:1px solid #333355;cursor:pointer;transition:all .2s;}
+        .myreports-item:hover{background:#2a2a48;border-color:#6c5ce7;transform:translateX(4px);}
+        .myreports-item-icon{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+        .myreports-item-info{flex:1;min-width:0;}
+        .myreports-item-title{font-size:13px;font-weight:600;color:#d0d0dc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .myreports-item-meta{font-size:11px;color:#888;margin-top:3px;}
+        .myreports-item-badge{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600;flex-shrink:0;}
+        .myreports-item-badge.active{background:rgba(0,214,143,.15);color:#00d68f;}
+        .myreports-item-badge.expired{background:rgba(255,92,92,.15);color:#ff5c5c;}
+        /* ===== Bug 评论系统 ===== */
+        .bug-comment-toggle{font-size:11px;color:#6c5ce7;cursor:pointer;font-weight:600;margin-left:8px;user-select:none;transition:color .2s;}
+        .bug-comment-toggle:hover{color:#a29bfe;}
+        .bug-comment-section{display:none;margin-top:8px;padding:10px 12px;background:#1a1a30;border-radius:8px;border:1px solid #2a2a48;}
+        .bug-comment-section.open{display:block;}
+        .bug-comment-list{max-height:200px;overflow-y:auto;margin-bottom:8px;}
+        .bug-comment-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #2a2a44;}
+        .bug-comment-item:last-child{border-bottom:none;}
+        .bug-comment-item:last-child{padding-bottom:0;}
+        .bug-comment-avatar{width:26px;height:26px;border-radius:50%;background:#4a3db8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+        .bug-comment-content{flex:1;min-width:0;}
+        .bug-comment-author{font-size:11px;font-weight:600;color:#ccc;}
+        .bug-comment-author .time{font-size:10px;color:#666;margin-left:6px;font-weight:400;}
+        .bug-comment-text{font-size:12px;color:#bbb;margin-top:2px;word-break:break-word;}
+        .bug-comment-input-wrap{display:flex;gap:6px;}
+        .bug-comment-input{flex:1;padding:7px 10px;border:1px solid #333355;border-radius:6px;background:#16162a;color:#d0d0dc;font-size:12px;outline:none;transition:border-color .2s;}
+        .bug-comment-input:focus{border-color:#6c5ce7;}
+        .bug-comment-send{padding:6px 12px;border:none;border-radius:6px;background:#6c5ce7;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0;}
+        .bug-comment-send:hover{background:#5a4bd1;}
+        .bug-comment-send:disabled{opacity:.5;cursor:not-allowed;}
+        .bug-comment-count{font-size:10px;color:#888;margin-left:4px;}
+        /* ===== 移动端适配 ===== */
+        @media(max-width:768px){
+            .nav-sidebar{position:fixed;top:0;left:0;z-index:9999;width:260px;height:100%;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.15);}
+            .nav-sidebar.open{transform:translateX(0);}
+            .sidebar-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s;}
+            .sidebar-overlay.show{opacity:1;pointer-events:auto;}
+            .resize-handle{display:none!important;}
+            .content-area{padding:12px;}
+            .task-section{padding:14px;border-radius:8px;}
+            .task-title{font-size:16px;}
+            .toolbar{flex-wrap:wrap;gap:6px;padding:8px 12px!important;}
+            .toolbar-left{flex:1;}
+            .toolbar-right{width:100%;justify-content:flex-start;flex-wrap:wrap;gap:4px;}
+            .nav-summary-val{font-size:28px;}
+            .nav-footer{padding:8px 10px;font-size:9px;}
+            .stat-val{font-size:16px;}
+            .stat-card{padding:8px 6px;}
+            .task-stats{gap:8px;}
+            .bug-table{font-size:11px;display:block;overflow-x:auto;}
+            .bug-table th,.bug-table td{padding:6px 8px;white-space:nowrap;}
+            .img-pair{max-width:100%;}
+            .auth-panel{width:90%;max-width:360px;padding:24px;}
+            .hamburger-btn{display:flex!important;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:18px;transition:all .2s;flex-shrink:0;}
+            .hamburger-btn:hover{border-color:#6c5ce7;color:#6c5ce7;}
+            body.dark .hamburger-btn{background:#252540;border-color:#444;color:#ccc;}
+            body.dark .hamburger-btn:hover{border-color:#7c6df7;color:#7c6df7;}
+            .report-wrap{position:relative;}
+            .tool-btn{padding:4px 10px;font-size:11px;}
+            .status-bar{font-size:10px;padding:6px 10px;}
+            .img-controls{padding:6px 10px;gap:6px;}
+            .img-controls label{font-size:11px;}
+            .img-controls input[type=range]{width:80px;}
+        }
+        /* 中等屏幕 (平板) */
+        @media(min-width:769px) and (max-width:1024px){
+            .nav-sidebar{width:200px;}
+            .content-area{padding:16px;}
+            .nav-summary-val{font-size:30px;}
+            .nav-footer{font-size:9px;}
+            .img-pair{max-width:600px;}
+        }
     </style>
 </head>
 <body>
@@ -191,6 +274,7 @@
         <div class="loading-spinner"></div>
     </div>
     <div class="toolbar" style="height:auto;padding:10px 16px;">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileSidebar()" style="display:none;" title="菜单">☰</button>
         <div class="toolbar-left" style="align-items:flex-start;">
             <div style="display:flex;flex-direction:column;gap:2px;">
                 <span class="toolbar-title" id="reportTitle">UI-REL 在线报告</span>
@@ -217,6 +301,7 @@
                 </div>
                 <div class="user-dropdown" id="userDropdown">
                     <div class="user-dropdown-email" id="userDropdownEmail"></div>
+                    <div class="user-dropdown-item" onclick="showMyReports()">📋 我的报告</div>
                     <div class="user-dropdown-item danger" onclick="handleSignOut()">退出登录</div>
                 </div>
             </div>
@@ -236,15 +321,29 @@
             </div>
             <div class="nav-list" id="navList"></div>
             <div class="nav-footer">
-                <div>UI-REL <span id="footerVersion">20260522-1807</span></div>
-                <div>Power by <a href="https://vibstore.org/002" target="_blank">OKSHIJIAN</a></div>
+                <div>UI-REL <span id="footerVersion">20260528-1500</span></div>
+                <div>建议反馈：<a href="mailto:s@100ui.cn">s@100ui.cn</a></div>
             </div>
         </nav>
         <div class="resize-handle" id="resizeHandle"></div>
         <div class="content-area" id="contentArea"></div>
     </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
     <div id="cursorContainer"></div>
     <div class="collab-toast" id="collabToast"></div>
+
+    <!-- 我的报告侧滑面板 -->
+    <div class="myreports-overlay" id="myReportsOverlay" onclick="if(event.target===this)hideMyReports()">
+        <div class="myreports-panel" id="myReportsPanel">
+            <div class="myreports-header">
+                <h2>📋 我的报告</h2>
+                <button class="myreports-close" onclick="hideMyReports()">✕</button>
+            </div>
+            <div class="myreports-body" id="myReportsBody">
+                <div class="myreports-loading">加载中...</div>
+            </div>
+        </div>
+    </div>
 
     <!-- 登录/注册弹窗 -->
     <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)hideAuthModal()">
@@ -363,6 +462,10 @@
                 if (userBtn) userBtn.style.display = 'none';
                 if (dropdown) dropdown.classList.remove('show');
             }
+            // 同步身份到 localStorage，刷新协作光标标识
+            syncIdentityToStorage();
+            // 登录后刷新协作光标
+            refreshCursorIdentity();
         }
 
         // 弹窗控制
@@ -488,7 +591,7 @@
                         btn.textContent = '注册';
                         return;
                     }
-                    const { error } = await doAuthSignUp(email, password);
+                    const { data, error } = await doAuthSignUp(email, password);
                     if (error) {
                         const errType = getAuthErrorType(error);
                         if (errType === 'registered') {
@@ -503,31 +606,28 @@
                         return;
                     }
                     // 注册成功，自动登录
+                    if (data.user) updateAuthUI(data.user);
                     hideAuthModal();
                 } else {
-                    // 登录模式：先尝试注册（新用户），再尝试登录（已有用户）
-                    const { error: signUpError } = await doAuthSignUp(email, password);
+                    // 登录模式：先尝试登录（已有用户），失败时尝试注册（新用户）
+                    const { data: signInData, error: signInError } = await doAuthSignIn(email, password);
+                    if (!signInError) {
+                        if (signInData.user) updateAuthUI(signInData.user);
+                        hideAuthModal();
+                        return;
+                    }
+                    // 登录失败 → 尝试注册（可能是新用户）
+                    const { data: signUpData, error: signUpError } = await doAuthSignUp(email, password);
                     if (!signUpError) {
+                        if (signUpData.user) updateAuthUI(signUpData.user);
                         hideAuthModal();
                         return;
                     }
                     const errType = getAuthErrorType(signUpError);
                     if (errType === 'registered') {
-                        // 已注册 → 尝试登录
-                        const { error: signInError } = await doAuthSignIn(email, password);
-                        if (!signInError) {
-                            hideAuthModal();
-                            return;
-                        }
-                        const inErrType = getAuthErrorType(signInError);
-                        if (inErrType === 'wrong_password' || inErrType === 'other') {
-                            showAuthMsg('error', '密码错误，请检查后重试');
-                            document.getElementById('authForgotLink').style.display = '';
-                        } else if (inErrType === 'rate_limit') {
-                            showAuthMsg('error', '操作太频繁，请稍等片刻再试');
-                        } else {
-                            showAuthMsg('error', signInError.message || '登录失败');
-                        }
+                        // 已注册但登录失败 → 密码错误
+                        showAuthMsg('error', '密码错误，请检查后重试');
+                        document.getElementById('authForgotLink').style.display = '';
                     } else if (errType === 'rate_limit') {
                         showAuthMsg('error', '操作太频繁，请稍等片刻再试');
                     } else {
@@ -602,6 +702,47 @@
 
         // ===== 认证模块结束 =====
 
+        // ===== 统一身份函数 =====
+        // 优先使用登录用户的真实身份，否则退化为本地访客
+        function getEffectiveIdentity() {
+            if (authUser && authUser.email) {
+                return {
+                    id: authUser.id,
+                    name: authUser.email.split('@')[0],
+                    email: authUser.email,
+                    isGuest: false
+                };
+            }
+            // 未登录 → 使用 localStorage 持久化的访客 ID
+            let guestId = localStorage.getItem('uirel-guest-id');
+            if (!guestId) {
+                guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('uirel-guest-id', guestId);
+            }
+            let guestName = localStorage.getItem('uirel-guest-name');
+            if (!guestName) {
+                guestName = '访客' + Math.floor(Math.random() * 100);
+                localStorage.setItem('uirel-guest-name', guestName);
+            }
+            return {
+                id: guestId,
+                name: guestName,
+                email: null,
+                isGuest: true
+            };
+        }
+
+        // 当 authUser 变化时更新 localStorage 缓存（用于快速读取）
+        function syncIdentityToStorage() {
+            const idn = getEffectiveIdentity();
+            if (!idn.isGuest) {
+                localStorage.setItem('uirel-login-id', idn.id);
+                localStorage.setItem('uirel-login-name', idn.name);
+                localStorage.setItem('uirel-login-email', idn.email);
+            }
+        }
+        // ===== 统一身份函数结束 =====
+
         // 获取 URL 参数
         const urlParams = new URLSearchParams(window.location.search);
         const reportId = urlParams.get('id');
@@ -611,8 +752,7 @@
 
         // ===== 协作功能 =====
         const COLORS = ['#6c5ce7', '#00cec9', '#e17055', '#fdcb6e', '#00b894', '#fd79a8', '#0984e3', '#d63031'];
-        const myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
-        const myUsername = (authUser && authUser.email ? authUser.email.split('@')[0] : '') || localStorage.getItem('uirel-username') || '访客' + Math.floor(Math.random() * 100);
+        // 动态身份：始终通过函数获取当前用户
         const myColor = COLORS[Math.floor(Math.random() * COLORS.length)];
         const remoteCursors = {};
         const CURSOR_UPDATE_INTERVAL = 50;
@@ -632,11 +772,12 @@
             if (cursorThrottleTimer) return;
             cursorThrottleTimer = setTimeout(async () => {
                 cursorThrottleTimer = null;
+                const idn = getEffectiveIdentity();
                 try {
                     const { error } = await supabase.from('report_cursors').upsert({
                         report_id: reportId,
-                        user_id: myUserId,
-                        username: myUsername,
+                        user_id: idn.id,
+                        username: idn.name,
                         x, y,
                         color: myColor,
                         last_seen: new Date().toISOString()
@@ -650,8 +791,9 @@
         }
 
         function renderRemoteUsers(cursors) {
+            const idn = getEffectiveIdentity();
             const container = document.getElementById('collabUsers');
-            const validCursors = cursors.filter(c => c.user_id !== myUserId && Date.now() - new Date(c.last_seen).getTime() < CURSOR_EXPIRE_SECONDS * 1000);
+            const validCursors = cursors.filter(c => c.user_id !== idn.id && Date.now() - new Date(c.last_seen).getTime() < CURSOR_EXPIRE_SECONDS * 1000);
             
             // 更新头像列表
             const existingSpan = container.parentElement.querySelector('.collab-count');
@@ -688,11 +830,12 @@
         }
 
         async function startCollaboration() {
+            const idn = getEffectiveIdentity();
             // 注册我的光标
             myCursorEl = document.createElement('div');
             myCursorEl.className = 'remote-cursor';
             myCursorEl.style.opacity = '0.4';
-            myCursorEl.innerHTML = `<div class="cursor-pointer" style="color:${myColor};"></div><div class="cursor-label" style="background:${myColor};">${myUsername} (我)</div>`;
+            myCursorEl.innerHTML = `<div class="cursor-pointer" style="color:${myColor};"></div><div class="cursor-label" style="background:${myColor};">${idn.name} (我)</div>`;
             document.getElementById('cursorContainer').appendChild(myCursorEl);
 
             // 监听光标变化
@@ -706,12 +849,13 @@
 
             // 定时心跳保活
             heartbeatTimer = setInterval(async () => {
+                const hidn = getEffectiveIdentity();
                 try {
                     // 先更新自己的在线状态
                     const { error: upsertErr } = await supabase.from('report_cursors').upsert({
                         report_id: reportId,
-                        user_id: myUserId,
-                        username: myUsername,
+                        user_id: hidn.id,
+                        username: hidn.name,
                         x: myCursorEl ? parseInt(myCursorEl.style.left) || 0 : 0,
                         y: myCursorEl ? parseInt(myCursorEl.style.top) || 0 : 0,
                         color: myColor,
@@ -742,15 +886,157 @@
 
             // 页面关闭时清除
             window.addEventListener('beforeunload', async () => {
+                const bidn = getEffectiveIdentity();
                 try {
                     await supabase.from('report_cursors')
                         .delete()
-                        .eq('user_id', myUserId)
+                        .eq('user_id', bidn.id)
                         .eq('report_id', reportId);
                 } catch(e) {}
             });
         }
+
+        // 登录后刷新光标标识（清除旧 guest 光标，使用新 auth 光标）
+        function refreshCursorIdentity() {
+            const idn = getEffectiveIdentity();
+            // 更新 myCursorEl 标签
+            if (myCursorEl) {
+                const label = myCursorEl.querySelector('.cursor-label');
+                if (label) label.textContent = idn.name + ' (我)';
+            }
+        }
         // ===== 协作功能结束 =====
+
+        // ===== 我的报告面板 =====
+        function showMyReports() {
+            hideAuthDropdown();
+            document.getElementById('myReportsOverlay').classList.add('show');
+            loadMyReports();
+        }
+
+        function hideMyReports() {
+            document.getElementById('myReportsOverlay').classList.remove('show');
+        }
+
+        async function loadMyReports() {
+            const body = document.getElementById('myReportsBody');
+            body.innerHTML = '<div class="myreports-loading">加载中...</div>';
+
+            const idn = getEffectiveIdentity();
+            try {
+                // 查询当前用户参与的报告（通过 report_visits 表和 checked_by 身份）
+                const userId = idn.id;
+                const userName = idn.name;
+
+                // 尝试从 report_visits 表获取访问记录
+                let reportIds = [];
+                let visitMap = {};
+
+                try {
+                    const { data: visits } = await supabase
+                        .from('report_visits')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('visited_at', { ascending: false })
+                        .limit(50);
+
+                    if (visits && visits.length > 0) {
+                        visits.forEach(v => {
+                            reportIds.push(v.report_id);
+                            visitMap[v.report_id] = v.visited_at;
+                        });
+                    }
+                } catch(e) {
+                    // report_visits 表可能不存在，fallback 到当前报告
+                    console.warn('report_visits table may not exist:', e.message);
+                }
+
+                // 如果没有访问记录，至少加入当前报告
+                if (reportIds.length === 0 && reportId) {
+                    reportIds.push(reportId);
+                }
+
+                // 批量查询报告
+                if (reportIds.length === 0) {
+                    body.innerHTML = '<div class="myreports-empty">还没有访问过任何报告<br><span style="font-size:12px;color:#888;">打开一个报告链接即可自动记录</span></div>';
+                    return;
+                }
+
+                const { data: reports } = await supabase
+                    .from('reports')
+                    .select('*')
+                    .in('report_id', reportIds)
+                    .order('created_at', { ascending: false });
+
+                if (!reports || reports.length === 0) {
+                    body.innerHTML = '<div class="myreports-empty">暂无历史报告</div>';
+                    return;
+                }
+
+                // 计算每个报告的 bug 统计
+                const reportIdList = reports.map(r => r.report_id);
+                const { data: allBugsData } = await supabase
+                    .from('bugs')
+                    .select('report_id, checked')
+                    .in('report_id', reportIdList);
+
+                const bugStats = {};
+                if (allBugsData) {
+                    allBugsData.forEach(b => {
+                        if (!bugStats[b.report_id]) bugStats[b.report_id] = { total: 0, fixed: 0 };
+                        bugStats[b.report_id].total++;
+                        if (b.checked) bugStats[b.report_id].fixed++;
+                    });
+                }
+
+                // 判断报告是否过期 (>30天)
+                const now = Date.now();
+                const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+                body.innerHTML = reports.map(r => {
+                    const titleParts = (r.title || '未命名报告').split('‖');
+                    const title = titleParts[0];
+                    const isExpired = now - new Date(r.created_at).getTime() > thirtyDays;
+                    const stats = bugStats[r.report_id] || { total: 0, fixed: 0 };
+                    const badgeClass = isExpired ? 'expired' : 'active';
+                    const badgeText = isExpired ? '已过期' : `${stats.fixed}/${stats.total} 已修复`;
+
+                    return `
+                    <div class="myreports-item" onclick="window.open('?id=${r.report_id}','_self')">
+                        <div class="myreports-item-icon">📄</div>
+                        <div class="myreports-item-info">
+                            <div class="myreports-item-title">${title}</div>
+                            <div class="myreports-item-meta">${new Date(r.created_at).toLocaleString('zh-CN')} · ${r.task_count || 0} 任务</div>
+                        </div>
+                        <span class="myreports-item-badge ${badgeClass}">${badgeText}</span>
+                    </div>`;
+                }).join('');
+
+            } catch(e) {
+                console.error('加载我的报告失败:', e);
+                body.innerHTML = '<div class="myreports-empty">加载失败: ' + (e.message || '未知错误') + '</div>';
+            }
+        }
+
+        // 记录报告访问（用于"我的报告"历史）
+        async function recordReportVisit() {
+            const idn = getEffectiveIdentity();
+            try {
+                await supabase.from('report_visits').upsert({
+                    user_id: idn.id,
+                    report_id: reportId,
+                    user_name: idn.name,
+                    visited_at: new Date().toISOString()
+                }, { onConflict: 'user_id,report_id' });
+            } catch(e) {
+                // 表可能不存在，忽略错误
+            }
+        }
+
+        // 暴露到全局
+        window.showMyReports = showMyReports;
+        window.hideMyReports = hideMyReports;
+        // ===== 我的报告面板结束 =====
 
         // 页面加载
         async function init() {
@@ -801,9 +1087,20 @@
                 updateBugProgress();
                 renderTasks();
 
+                // 记录本次访问
+                recordReportVisit();
+
+                // 加载所有 Bug 的评论计数
+                loadAllCommentCounts();
+
                 // 订阅实时更新
                 supabase.channel('bugs-changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'bugs', filter: `report_id=eq.${reportId}` }, handleBugChange)
+                    .subscribe();
+
+                // 订阅评论实时更新
+                supabase.channel('comments-changes')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bug_comments', filter: `report_id=eq.${reportId}` }, handleCommentChange)
                     .subscribe();
 
                 // 启动协作功能
@@ -841,13 +1138,40 @@
             updateBugProgress();
         }
 
+        // 处理实时评论变更
+        async function handleCommentChange(payload) {
+            const comment = payload.new;
+            if (!comment) return;
+
+            // 找到对应的 bug（通过 bug_id = bug 记录 id）
+            const bug = allBugs.find(b => b.id === comment.bug_id);
+            if (!bug) return;
+
+            // 重新加载该 bug 的评论
+            const taskIndex = bug.task_index;
+            const bugId = bug.bug_id;
+            const section = document.getElementById('comment-section-' + taskIndex + '-' + bugId);
+            if (section && section.classList.contains('open')) {
+                await loadBugComments(taskIndex, bugId);
+            }
+            // 更新评论计数
+            const key = taskIndex + '-' + bugId;
+            const cached = commentsCache[key];
+            const countEl = document.getElementById('comment-count-' + taskIndex + '-' + bugId);
+            if (countEl) {
+                const count = (cached ? cached.length : 0) + 1;
+                countEl.textContent = ' ' + count;
+            }
+        }
+
         // 切换 Bug 状态
         async function toggleBug(taskIndex, bugId, checkbox) {
             const bug = allBugs.find(b => b.task_index === taskIndex && b.bug_id === bugId);
             if (!bug) return;
 
             const newChecked = checkbox.checked;
-            const username = localStorage.getItem('uirel-username') || '访客';
+            const idn = getEffectiveIdentity();
+            const username = idn.name;
 
             // 乐观更新 - 先更新本地数据
             bug.checked = newChecked;
@@ -928,6 +1252,178 @@
             document.getElementById('bugProgress').textContent = `修复进度: ${checked}/${total} (${pct}%)`;
         }
 
+        // ===== Bug 评论系统 =====
+        // 评论缓存 { 'taskIndex-bugId': [{...}] }
+        const commentsCache = {};
+
+        async function toggleBugComments(taskIndex, bugId) {
+            const row = document.getElementById('comment-row-' + taskIndex + '-' + bugId);
+            const section = document.getElementById('comment-section-' + taskIndex + '-' + bugId);
+            if (!row || !section) return;
+
+            const isOpen = row.style.display !== 'none';
+            if (isOpen) {
+                row.style.display = 'none';
+                section.classList.remove('open');
+            } else {
+                row.style.display = '';
+                section.classList.add('open');
+                await loadBugComments(taskIndex, bugId);
+                // 聚焦输入框
+                setTimeout(() => {
+                    const input = document.getElementById('comment-input-' + taskIndex + '-' + bugId);
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        async function loadBugComments(taskIndex, bugId) {
+            const key = taskIndex + '-' + bugId;
+            const listEl = document.getElementById('comment-list-' + taskIndex + '-' + bugId);
+            const countEl = document.getElementById('comment-count-' + taskIndex + '-' + bugId);
+            if (!listEl) return;
+
+            try {
+                const bug = allBugs.find(b => b.task_index === taskIndex && b.bug_id === bugId);
+                const bugRecordId = bug ? bug.id : null;
+                if (!bugRecordId) {
+                    listEl.innerHTML = '<div style="font-size:11px;color:#666;">无法加载评论</div>';
+                    return;
+                }
+
+                const { data: comments, error } = await supabase
+                    .from('bug_comments')
+                    .select('*')
+                    .eq('bug_id', bugRecordId)
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    listEl.innerHTML = '<div style="font-size:11px;color:#666;">评论加载失败</div>';
+                    console.error('load comments error:', error);
+                    return;
+                }
+
+                commentsCache[key] = comments || [];
+
+                if (countEl) {
+                    countEl.textContent = comments && comments.length > 0 ? ' ' + comments.length : '';
+                }
+
+                if (!comments || comments.length === 0) {
+                    listEl.innerHTML = '<div style="font-size:11px;color:#666;text-align:center;padding:8px;">暂无评论</div>';
+                    return;
+                }
+
+                listEl.innerHTML = comments.map(c => {
+                    const author = c.author_name || '匿名';
+                    const time = new Date(c.created_at).toLocaleString('zh-CN');
+                    return `
+                    <div class="bug-comment-item">
+                        <div class="bug-comment-avatar">${author.slice(0,1).toUpperCase()}</div>
+                        <div class="bug-comment-content">
+                            <div class="bug-comment-author">${author}<span class="time">${time}</span></div>
+                            <div class="bug-comment-text">${escapeHtml(c.content || '')}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch(e) {
+                console.error('load comments error:', e);
+                listEl.innerHTML = '<div style="font-size:11px;color:#666;">评论加载出错</div>';
+            }
+        }
+
+        async function submitBugComment(taskIndex, bugId) {
+            const input = document.getElementById('comment-input-' + taskIndex + '-' + bugId);
+            const sendBtn = input ? input.nextElementSibling : null;
+            if (!input) return;
+
+            const content = input.value.trim();
+            if (!content) return;
+
+            const idn = getEffectiveIdentity();
+            const authorName = idn.name;
+            const authorId = idn.id;
+
+            const bug = allBugs.find(b => b.task_index === taskIndex && b.bug_id === bugId);
+            const bugRecordId = bug ? bug.id : null;
+            if (!bugRecordId) return;
+
+            if (sendBtn) sendBtn.disabled = true;
+            input.disabled = true;
+
+            try {
+                const { error } = await supabase.from('bug_comments').insert({
+                    bug_id: bugRecordId,
+                    report_id: reportId,
+                    author_id: authorId,
+                    author_name: authorName,
+                    content: content,
+                    created_at: new Date().toISOString()
+                });
+
+                if (error) {
+                    // 表可能不存在
+                    if (error.message && error.message.includes('does not exist')) {
+                        alert('评论功能需要数据库支持。请在 Supabase 中创建 bug_comments 表。');
+                    } else {
+                        alert('评论发送失败: ' + error.message);
+                    }
+                } else {
+                    input.value = '';
+                    await loadBugComments(taskIndex, bugId);
+                }
+            } catch(e) {
+                alert('评论发送出错: ' + (e.message || '未知错误'));
+            } finally {
+                if (sendBtn) sendBtn.disabled = false;
+                input.disabled = false;
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // 初始化时加载所有评论计数
+        async function loadAllCommentCounts() {
+            try {
+                const bugIds = allBugs.map(b => b.id);
+                if (bugIds.length === 0) return;
+
+                const { data: counts } = await supabase
+                    .from('bug_comments')
+                    .select('bug_id')
+                    .in('bug_id', bugIds);
+
+                if (!counts) return;
+
+                // 统计每个 bug 的评论数
+                const countMap = {};
+                counts.forEach(c => {
+                    countMap[c.bug_id] = (countMap[c.bug_id] || 0) + 1;
+                });
+
+                // 更新 UI
+                Object.keys(countMap).forEach(bugRecordId => {
+                    const bug = allBugs.find(b => b.id === parseInt(bugRecordId));
+                    if (!bug) return;
+                    const el = document.getElementById('comment-count-' + bug.task_index + '-' + bug.bug_id);
+                    if (el && countMap[bugRecordId] > 0) {
+                        el.textContent = ' ' + countMap[bugRecordId];
+                    }
+                });
+            } catch(e) {
+                // 表可能不存在，忽略
+            }
+        }
+
+        // 暴露到全局
+        window.toggleBugComments = toggleBugComments;
+        window.submitBugComment = submitBugComment;
+        // ===== Bug 评论系统结束 =====
+
         // 渲染任务
         function renderTasks() {
             const navList = document.getElementById('navList');
@@ -988,7 +1484,7 @@
                     ${taskBugs.length > 0 ? `
                     <div class="section-title bug-section-title">Bug 标记列表 (${checkedCount}/${taskBugs.length} 已修复)</div>
                     <table class="bug-table">
-                        <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th><th style="width:50px;">优先级</th></tr></thead>
+                        <thead><tr><th style="width:36px;"></th><th style="width:50px;">#ID</th><th>描述</th><th>状态</th><th style="width:50px;">优先级</th><th style="width:36px;"></th></tr></thead>
                         <tbody>
                             ${taskBugs.map(bug => {
                                 var pri = bug.priority || 'P3';
@@ -1001,6 +1497,18 @@
                                 <td>${bug.text || '-'}</td>
                                 <td class="r-bug-status-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
                                 <td><span class="pri-badge ${priClass}" style="display:inline-block;padding:1px 6px;font-size:10px;font-weight:700;font-family:JetBrains Mono,monospace;border-radius:3px;color:#fff;background:${priColor};">${pri}</span></td>
+                                <td><span class="bug-comment-toggle" onclick="toggleBugComments(${i}, ${bug.bug_id})" title="评论">💬<span class="bug-comment-count" id="comment-count-${i}-${bug.bug_id}"></span></span></td>
+                            </tr>
+                            <tr class="bug-comment-row" id="comment-row-${i}-${bug.bug_id}" style="display:none;">
+                                <td colspan="6" style="padding:0 12px 10px;">
+                                    <div class="bug-comment-section" id="comment-section-${i}-${bug.bug_id}">
+                                        <div class="bug-comment-list" id="comment-list-${i}-${bug.bug_id}"></div>
+                                        <div class="bug-comment-input-wrap">
+                                            <input class="bug-comment-input" id="comment-input-${i}-${bug.bug_id}" placeholder="添加评论..." onkeydown="if(event.key==='Enter')submitBugComment(${i}, ${bug.bug_id})" />
+                                            <button class="bug-comment-send" onclick="submitBugComment(${i}, ${bug.bug_id})">发送</button>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             `}).join('')}
                         </tbody>
@@ -1086,7 +1594,32 @@
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 document.querySelector(`.nav-item[data-target="${id}"]`)?.classList.add('active');
             }
+            // 移动端：选择任务后关闭侧边栏
+            closeMobileSidebar();
         }
+
+        // ===== 移动端侧边栏 =====
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('navSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                closeMobileSidebar();
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('show');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('navSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+        // 暴露到全局
+        window.toggleMobileSidebar = toggleMobileSidebar;
+        window.closeMobileSidebar = closeMobileSidebar;
 
         function toggleTheme() {
             document.body.classList.toggle('dark');
