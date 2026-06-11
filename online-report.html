@@ -61,11 +61,35 @@
         .nav-item:hover{background:#f0f1f8;border-color:#d0d0e8;}
         .nav-item.active{background:#6c5ce7;border-color:#6c5ce7;}
         .nav-item.active .nav-title,.nav-item.active .nav-meta{color:#fff;}
+        .nav-item.is-child{padding-left:28px;font-size:11px;}
         .nav-thumb-wrap{width:40px;height:40px;flex-shrink:0;border-radius:6px;overflow:hidden;background:#eee;}
         .nav-thumb{width:100%;height:100%;object-fit:cover;}
         .nav-info{flex:1;min-width:0;}
         .nav-title{font-size:12px;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .nav-meta{font-size:10px;color:#888;}
+        /* ===== 文件夹样式 ===== */
+        .nav-folder{margin-bottom:2px;}
+        .nav-folder-header{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:12px;font-weight:600;color:#555;user-select:none;border:1px solid transparent;}
+        .nav-folder-header:hover{background:#f0f1f8;border-color:#d0d0e8;color:#333;}
+        .nav-folder-arrow{display:inline-block;transition:transform .25s cubic-bezier(.4,0,.2,1);font-size:10px;width:16px;text-align:center;flex-shrink:0;color:#aaa;}
+        .nav-folder.open .nav-folder-arrow{transform:rotate(90deg);color:#6c5ce7;}
+        .nav-folder-icon{font-size:14px;flex-shrink:0;}
+        .nav-folder-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .nav-folder-count{font-size:10px;color:#aaa;flex-shrink:0;}
+        .nav-folder-body{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
+        .nav-folder.open .nav-folder-body{max-height:2000px;}
+        .nav-folder-body .nav-item{margin-left:8px;margin-bottom:2px;padding:8px 10px;border-radius:6px;font-size:11px;}
+        .nav-folder-body .nav-item .nav-title{font-size:11px;}
+        /* dark */
+        body.dark .nav-folder-header{color:#aaa;}
+        body.dark .nav-folder-header:hover{background:#2a2a44;border-color:#444;color:#d0d0dc;}
+        body.dark .nav-folder-arrow{color:#666;}
+        body.dark .nav-folder.open .nav-folder-arrow{color:#8b7cf7;}
+        body.dark .nav-folder-count{color:#666;}
+        /* ===== 彩带动效 ===== */
+        .confetti-overlay{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9997;}
+        .no-bug-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:linear-gradient(135deg,#00d68f,#00b894);color:#fff;border-radius:20px;font-size:13px;font-weight:700;margin-top:12px;animation:celebratePulse 2s ease-in-out infinite;}
+        @keyframes celebratePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,214,143,.4);}50%{transform:scale(1.05);box-shadow:0 0 0 12px rgba(0,214,143,0);}}
         .resize-handle{width:8px;cursor:col-resize;flex-shrink:0;background:#e4e6eb;transition:background .2s;position:relative;z-index:10;}
         .resize-handle:hover,.resize-handle:active{background:#6c5ce7;}
         .content-area{flex:1;overflow-y:auto;padding:20px;}
@@ -187,45 +211,103 @@
         /* ===== 我的报告侧滑面板 ===== */
         .myreports-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:10002;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;}
         .myreports-overlay.show{opacity:1;pointer-events:auto;}
-        .myreports-panel{width:420px;max-width:90vw;height:100%;background:#1a1c2e;box-shadow:-8px 0 40px rgba(0,0,0,.3);display:flex;flex-direction:column;transform:translateX(20px);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+        .myreports-panel{width:420px;max-width:90vw;height:100%;background:#fff;box-shadow:-8px 0 40px rgba(0,0,0,.1);display:flex;flex-direction:column;transform:translateX(20px);transition:transform .3s cubic-bezier(.4,0,.2,1),background .25s;}
         .myreports-overlay.show .myreports-panel{transform:translateX(0);}
-        .myreports-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #2a2a44;flex-shrink:0;}
-        .myreports-header h2{font-size:18px;font-weight:700;color:#d0d0dc;display:flex;align-items:center;gap:8px;}
-        .myreports-close{width:32px;height:32px;border-radius:50%;border:none;background:#2a2a44;color:#999;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-        .myreports-close:hover{background:#444466;color:#fff;}
+        .myreports-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #eee;flex-shrink:0;transition:border-color .25s;}
+        .myreports-header h2{font-size:18px;font-weight:700;color:#222;display:flex;align-items:center;gap:8px;transition:color .25s;}
+        .myreports-close{width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;color:#666;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .myreports-close:hover{background:#e4e6eb;color:#333;}
         .myreports-body{flex:1;overflow-y:auto;padding:12px;}
         .myreports-loading{text-align:center;padding:40px 0;color:#888;font-size:14px;}
         .myreports-empty{text-align:center;padding:60px 20px;color:#666;font-size:14px;}
-        .myreports-item{display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:8px;background:#22223a;border-radius:10px;border:1px solid #333355;cursor:pointer;transition:all .2s;}
-        .myreports-item:hover{background:#2a2a48;border-color:#6c5ce7;transform:translateX(4px);}
+        .myreports-item{display:flex;align-items:center;gap:12px;padding:14px;margin-bottom:8px;background:#f8f9fc;border-radius:10px;border:1px solid #e4e6eb;cursor:pointer;transition:all .2s;}
+        .myreports-item:hover{background:#f0f1f8;border-color:#6c5ce7;transform:translateX(4px);}
         .myreports-item-icon{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
         .myreports-item-info{flex:1;min-width:0;}
-        .myreports-item-title{font-size:13px;font-weight:600;color:#d0d0dc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .myreports-item-title{font-size:13px;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .25s;}
         .myreports-item-meta{font-size:11px;color:#888;margin-top:3px;}
         .myreports-item-badge{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600;flex-shrink:0;}
-        .myreports-item-badge.active{background:rgba(0,214,143,.15);color:#00d68f;}
-        .myreports-item-badge.expired{background:rgba(255,92,92,.15);color:#ff5c5c;}
+        .myreports-item-badge.active{background:rgba(0,214,143,.15);color:#00a854;}
+        .myreports-item-badge.expired{background:rgba(255,92,92,.15);color:#d63031;}
+        /* dark overrides */
+        body.dark .myreports-panel{background:#1a1c2e;box-shadow:-8px 0 40px rgba(0,0,0,.3);}
+        body.dark .myreports-header{border-color:#2a2a44;}
+        body.dark .myreports-header h2{color:#d0d0dc;}
+        body.dark .myreports-close{background:#2a2a44;color:#999;}
+        body.dark .myreports-close:hover{background:#444466;color:#fff;}
+        body.dark .myreports-item{background:#22223a;border-color:#333355;}
+        body.dark .myreports-item:hover{background:#2a2a48;border-color:#6c5ce7;}
+        body.dark .myreports-item-title{color:#d0d0dc;}
+        body.dark .myreports-item-badge.active{color:#00d68f;}
+        body.dark .myreports-item-badge.expired{color:#ff5c5c;}
+        /* ===== 文件历史报告弹窗 ===== */
+        .filehistory-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+        .filehistory-overlay.show{opacity:1;pointer-events:auto;}
+        .filehistory-panel{background:#fff;border-radius:16px;width:90%;max-width:520px;max-height:80vh;box-shadow:0 20px 60px rgba(0,0,0,.15);display:flex;flex-direction:column;transform:translateY(10px);transition:transform .25s;}
+        .filehistory-overlay.show .filehistory-panel{transform:translateY(0);}
+        .filehistory-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #eee;flex-shrink:0;}
+        .filehistory-header h2{font-size:17px;font-weight:700;color:#222;display:flex;align-items:center;gap:8px;}
+        .filehistory-close{width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;color:#666;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .filehistory-close:hover{background:#e4e6eb;color:#333;}
+        .filehistory-body{flex:1;overflow-y:auto;padding:16px 24px;}
+        .filehistory-item{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:6px;background:#f8f9fc;border-radius:10px;border:1px solid #e4e6eb;cursor:pointer;transition:all .2s;}
+        .filehistory-item:hover{background:#f0f1f8;border-color:#6c5ce7;transform:translateX(4px);}
+        .filehistory-item.current{background:#f0f0ff;border-color:#6c5ce7;border-width:2px;cursor:default;transform:none;}
+        .filehistory-item-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;}
+        .filehistory-item-info{flex:1;min-width:0;}
+        .filehistory-item-title{font-size:13px;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .filehistory-item-meta{font-size:11px;color:#888;margin-top:2px;}
+        .filehistory-item-arrow{color:#aaa;font-size:14px;flex-shrink:0;}
+        .filehistory-loading{text-align:center;padding:30px 0;color:#888;font-size:13px;}
+        .filehistory-empty{text-align:center;padding:40px 20px;color:#888;font-size:13px;}
+        /* dark */
+        body.dark .filehistory-panel{background:#1a1c2e;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+        body.dark .filehistory-header{border-color:#2a2a44;}
+        body.dark .filehistory-header h2{color:#d0d0dc;}
+        body.dark .filehistory-close{background:#2a2a44;color:#999;}
+        body.dark .filehistory-close:hover{background:#444466;color:#fff;}
+        body.dark .filehistory-item{background:#22223a;border-color:#333355;}
+        body.dark .filehistory-item:hover{background:#2a2a48;border-color:#6c5ce7;}
+        body.dark .filehistory-item.current{background:#282848;border-color:#6c5ce7;}
+        body.dark .filehistory-item-title{color:#d0d0dc;}
+        .toolbar-date{cursor:pointer;transition:color .2s;}
+        .toolbar-date:hover{color:#6c5ce7;text-decoration:underline;}
+        body.dark .toolbar-date:hover{color:#a29bfe;}
         /* ===== Bug 评论系统 ===== */
         .bug-comment-toggle{font-size:11px;color:#6c5ce7;cursor:pointer;font-weight:600;margin-left:8px;user-select:none;transition:color .2s;}
-        .bug-comment-toggle:hover{color:#a29bfe;}
-        .bug-comment-section{display:none;margin-top:8px;padding:10px 12px;background:#1a1a30;border-radius:8px;border:1px solid #2a2a48;}
+        .bug-comment-toggle:hover{color:#5a4bd1;}
+        .bug-comment-section{display:none;margin-top:8px;padding:10px 12px;background:#f8f9fc;border-radius:8px;border:1px solid #e4e6eb;transition:background .25s,border-color .25s;}
         .bug-comment-section.open{display:block;}
         .bug-comment-list{max-height:200px;overflow-y:auto;margin-bottom:8px;}
-        .bug-comment-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #2a2a44;}
-        .bug-comment-item:last-child{border-bottom:none;}
-        .bug-comment-item:last-child{padding-bottom:0;}
-        .bug-comment-avatar{width:26px;height:26px;border-radius:50%;background:#4a3db8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+        .bug-comment-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #eee;transition:border-color .25s;}
+        .bug-comment-item:last-child{border-bottom:none;padding-bottom:0;}
+        .bug-comment-avatar{width:26px;height:26px;border-radius:50%;background:#6c5ce7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
         .bug-comment-content{flex:1;min-width:0;}
-        .bug-comment-author{font-size:11px;font-weight:600;color:#ccc;}
-        .bug-comment-author .time{font-size:10px;color:#666;margin-left:6px;font-weight:400;}
-        .bug-comment-text{font-size:12px;color:#bbb;margin-top:2px;word-break:break-word;}
+        .bug-comment-author{font-size:11px;font-weight:600;color:#333;transition:color .25s;}
+        .bug-comment-author .time{font-size:10px;color:#999;margin-left:6px;font-weight:400;transition:color .25s;}
+        .bug-comment-text{font-size:12px;color:#555;margin-top:2px;word-break:break-word;transition:color .25s;}
         .bug-comment-input-wrap{display:flex;gap:6px;}
-        .bug-comment-input{flex:1;padding:7px 10px;border:1px solid #333355;border-radius:6px;background:#16162a;color:#d0d0dc;font-size:12px;outline:none;transition:border-color .2s;}
+        .bug-comment-input{flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;font-size:12px;outline:none;transition:border-color .2s,background .25s,color .25s;}
         .bug-comment-input:focus{border-color:#6c5ce7;}
         .bug-comment-send{padding:6px 12px;border:none;border-radius:6px;background:#6c5ce7;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0;}
         .bug-comment-send:hover{background:#5a4bd1;}
         .bug-comment-send:disabled{opacity:.5;cursor:not-allowed;}
         .bug-comment-count{font-size:10px;color:#888;margin-left:4px;}
+        /* dark overrides */
+        body.dark .bug-comment-toggle{color:#a29bfe;}
+        body.dark .bug-comment-toggle:hover{color:#c4b5ff;}
+        body.dark .bug-comment-section{background:#1a1a30;border-color:#2a2a48;}
+        body.dark .bug-comment-item{border-color:#2a2a44;}
+        body.dark .bug-comment-author{color:#ccc;}
+        body.dark .bug-comment-author .time{color:#666;}
+        body.dark .bug-comment-text{color:#bbb;}
+        body.dark .bug-comment-input{border-color:#333355;background:#16162a;color:#d0d0dc;}
+        body.dark .bug-comment-input:focus{border-color:#a29bfe;}
+        body.dark .bug-comment-input::placeholder{color:#555;}
+        body.dark .bug-comment-send{background:#6c5ce7;color:#fff;}
+        body.dark .bug-comment-send:hover{background:#7c6ff0;}
+        body.dark .bug-comment-count{color:#777;}
+        body.dark .bug-comment-avatar{background:#7c6ff0;}
         /* ===== 移动端适配 ===== */
         @media(max-width:768px){
             .nav-sidebar{position:fixed;top:0;left:0;z-index:9999;width:260px;height:100%;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.15);}
@@ -358,6 +440,19 @@
             <button class="auth-btn" id="authSubmitBtn" onclick="handleAuthSubmit()">继续</button>
             <div class="auth-link" id="authForgotLink" style="display:none;margin-top:8px;" onclick="handleForgotPassword()">忘记密码？</div>
             <div class="auth-mode-switch" id="authModeSwitch">还没有账号？<span onclick="switchAuthMode('register')">立即注册</span></div>
+        </div>
+    </div>
+
+    <!-- 文件历史报告弹窗 -->
+    <div class="filehistory-overlay" id="fileHistoryOverlay" onclick="if(event.target===this)hideFileHistory()">
+        <div class="filehistory-panel">
+            <div class="filehistory-header">
+                <h2>📄 报告历史</h2>
+                <button class="filehistory-close" onclick="hideFileHistory()">✕</button>
+            </div>
+            <div class="filehistory-body" id="fileHistoryBody">
+                <div class="filehistory-loading">加载中...</div>
+            </div>
         </div>
     </div>
 
@@ -989,17 +1084,12 @@
                     });
                 }
 
-                // 判断报告是否过期 (>30天)
-                const now = Date.now();
-                const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-
                 body.innerHTML = reports.map(r => {
                     const titleParts = (r.title || '未命名报告').split('‖');
                     const title = titleParts[0];
-                    const isExpired = now - new Date(r.created_at).getTime() > thirtyDays;
                     const stats = bugStats[r.report_id] || { total: 0, fixed: 0 };
-                    const badgeClass = isExpired ? 'expired' : 'active';
-                    const badgeText = isExpired ? '已过期' : `${stats.fixed}/${stats.total} 已修复`;
+                    const badgeClass = 'active';
+                    const badgeText = `${stats.fixed}/${stats.total} 已修复`;
 
                     return `
                     <div class="myreports-item" onclick="window.open('?id=${r.report_id}','_self')">
@@ -1038,6 +1128,66 @@
         window.hideMyReports = hideMyReports;
         // ===== 我的报告面板结束 =====
 
+        // ===== 文件历史报告弹窗 =====
+        async function showFileHistory() {
+            if (!reportData || !reportData.file_key) {
+                // 旧报告没有 file_key，提示
+                document.getElementById('fileHistoryBody').innerHTML = '<div class="filehistory-empty">此报告生成时未记录文件信息<br><small style="opacity:0.5;">重新生成报告后即可查看历史</small></div>';
+                document.getElementById('fileHistoryOverlay').classList.add('show');
+                return;
+            }
+            document.getElementById('fileHistoryBody').innerHTML = '<div class="filehistory-loading">加载中...</div>';
+            document.getElementById('fileHistoryOverlay').classList.add('show');
+            
+            try {
+                const { data: historyReports, error } = await supabase
+                    .from('reports')
+                    .select('report_id, title, task_count, bug_count, created_at')
+                    .eq('file_key', reportData.file_key)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+                
+                if (error) throw error;
+                
+                const currentId = reportData.report_id;
+                if (!historyReports || historyReports.length === 0) {
+                    document.getElementById('fileHistoryBody').innerHTML = '<div class="filehistory-empty">暂无历史报告</div>';
+                    return;
+                }
+                
+                var html = '';
+                historyReports.forEach(function(hr) {
+                    var isCurrent = hr.report_id === currentId;
+                    var title = hr.title.split('‖')[0]; // Remove username suffix
+                    var dateStr = new Date(hr.created_at).toLocaleString('zh-CN');
+                    var cls = isCurrent ? ' current' : '';
+                    var arrow = isCurrent ? '<span style="font-size:10px;color:#6c5ce7;font-weight:600;">当前</span>' : '<span class="filehistory-item-arrow">→</span>';
+                    var onclick = isCurrent ? '' : ' onclick="event.stopPropagation();window.open(\'' + window.location.origin + window.location.pathname + '?id=' + hr.report_id + '\', \'_blank\')"';
+                    
+                    html += '<div class="filehistory-item' + cls + '"' + onclick + '>';
+                    html += '<div class="filehistory-item-icon">📄</div>';
+                    html += '<div class="filehistory-item-info">';
+                    html += '<div class="filehistory-item-title">' + escapeHtml(title) + '</div>';
+                    html += '<div class="filehistory-item-meta">' + dateStr + ' · ' + hr.task_count + ' 个任务 · ' + hr.bug_count + ' 个问题</div>';
+                    html += '</div>';
+                    html += arrow;
+                    html += '</div>';
+                });
+                document.getElementById('fileHistoryBody').innerHTML = html;
+            } catch(e) {
+                console.error('加载历史失败:', e);
+                document.getElementById('fileHistoryBody').innerHTML = '<div class="filehistory-empty">加载失败: ' + e.message + '</div>';
+            }
+        }
+        
+        function hideFileHistory() {
+            document.getElementById('fileHistoryOverlay').classList.remove('show');
+        }
+        
+        // 暴露到全局
+        window.showFileHistory = showFileHistory;
+        window.hideFileHistory = hideFileHistory;
+
         // 页面加载
         async function init() {
             if (!reportId) {
@@ -1069,6 +1219,8 @@
 
                 document.getElementById('reportTitle').textContent = report.title;
                 document.getElementById('reportDate').textContent = new Date(report.created_at).toLocaleString('zh-CN');
+                document.getElementById('reportDate').title = '点击查看此文件的所有历史报告';
+                document.getElementById('reportDate').onclick = showFileHistory;
                 
                 // 解析 title 中的用户名（‖ 分隔：title‖username）
                 var titleParts = report.title.split('‖');
@@ -1405,13 +1557,24 @@
                     countMap[c.bug_id] = (countMap[c.bug_id] || 0) + 1;
                 });
 
-                // 更新 UI
-                Object.keys(countMap).forEach(bugRecordId => {
-                    const bug = allBugs.find(b => b.id === parseInt(bugRecordId));
+                // 更新 UI：更新计数 + 有评论的自动展开
+                Object.keys(countMap).forEach(async (bugRecordId) => {
+                    const bug = allBugs.find(b => b.id === bugRecordId);
                     if (!bug) return;
-                    const el = document.getElementById('comment-count-' + bug.task_index + '-' + bug.bug_id);
-                    if (el && countMap[bugRecordId] > 0) {
-                        el.textContent = ' ' + countMap[bugRecordId];
+                    const ti = bug.task_index;
+                    const bi = bug.bug_id;
+                    const count = countMap[bugRecordId];
+                    const el = document.getElementById('comment-count-' + ti + '-' + bi);
+                    if (el && count > 0) {
+                        el.textContent = ' ' + count;
+                        // 有评论 → 自动展开评论区域
+                        const row = document.getElementById('comment-row-' + ti + '-' + bi);
+                        const section = document.getElementById('comment-section-' + ti + '-' + bi);
+                        if (row && section && row.style.display === 'none') {
+                            row.style.display = '';
+                            section.classList.add('open');
+                            await loadBugComments(ti, bi);
+                        }
                     }
                 });
             } catch(e) {
@@ -1424,7 +1587,7 @@
         window.submitBugComment = submitBugComment;
         // ===== Bug 评论系统结束 =====
 
-        // 渲染任务
+        // 渲染任务（含文件夹机制）
         function renderTasks() {
             const navList = document.getElementById('navList');
             const contentArea = document.getElementById('contentArea');
@@ -1438,37 +1601,119 @@
             }
 
             const tasks = reportData.task_data;
-            
-            tasks.forEach((task, i) => {
-                // 导航项
-                const navItem = document.createElement('div');
-                navItem.className = 'nav-item';
-                navItem.dataset.target = 'task-' + i;
-                navItem.onclick = () => scrollToTask('task-' + i);
-                navItem.innerHTML = `
-                    <div class="nav-thumb-wrap">${task.thumb || ''}</div>
-                    <div class="nav-info">
-                        <div class="nav-title">${task.frameName || '任务 ' + (i+1)}</div>
-                        <div class="nav-meta">${task.bugs || 0} 个 Bug</div>
-                    </div>
-                `;
-                navList.appendChild(navItem);
 
-                // 任务内容
+            // ★ 预处理：检测是否有斜杠路径，建立文件夹分组
+            const hasFolders = tasks.some(t => (t.frameName || '').includes('/'));
+            let folderGroups = {};  // { folderName: [taskIndex, ...] }
+            let standaloneTasks = []; // 无斜杠的顶级任务索引
+
+            if (hasFolders) {
+                tasks.forEach((task, i) => {
+                    const name = task.frameName || '';
+                    const slashIdx = name.lastIndexOf('/');
+                    if (slashIdx > 0) {
+                        const folder = name.substring(0, slashIdx);
+                        if (!folderGroups[folder]) folderGroups[folder] = [];
+                        folderGroups[folder].push(i);
+                    } else {
+                        standaloneTasks.push(i);
+                    }
+                });
+            }
+
+            // ★ 构建侧边栏导航
+            if (hasFolders) {
+                // 先渲染文件夹
+                Object.keys(folderGroups).forEach(folderName => {
+                    const indices = folderGroups[folderName];
+                    const totalBugs = indices.reduce((sum, idx) => sum + (tasks[idx].bugs || 0), 0);
+                    const taskBugsInFolder = indices.reduce((sum, idx) => {
+                        const tb = allBugs.filter(b => b.task_index === idx);
+                        return sum + tb.filter(b => b.checked).length;
+                    }, 0);
+                    const uncheckedInFolder = totalBugs - taskBugsInFolder;
+
+                    const folderEl = document.createElement('div');
+                    folderEl.className = 'nav-folder';
+                    folderEl.innerHTML = `
+                        <div class="nav-folder-header" onclick="toggleNavFolder(this)">
+                            <span class="nav-folder-arrow">▶</span>
+                            <span class="nav-folder-icon">📁</span>
+                            <span class="nav-folder-name">${escapeHtml(folderName)}</span>
+                            <span class="nav-folder-count">${indices.length}项 · ${totalBugs}bug</span>
+                        </div>
+                        <div class="nav-folder-body"></div>
+                    `;
+                    const body = folderEl.querySelector('.nav-folder-body');
+                    indices.forEach(idx => {
+                        const task = tasks[idx];
+                        const displayName = (task.frameName || '').substring(task.frameName.lastIndexOf('/') + 1) || ('任务 ' + (idx + 1));
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'nav-item is-child';
+                        itemEl.dataset.target = 'task-' + idx;
+                        itemEl.onclick = () => scrollToTask('task-' + idx);
+                        itemEl.innerHTML = `
+                            <div class="nav-thumb-wrap">${task.thumb || ''}</div>
+                            <div class="nav-info">
+                                <div class="nav-title">${escapeHtml(displayName)}</div>
+                                <div class="nav-meta">${task.bugs || 0} 个 Bug</div>
+                            </div>
+                        `;
+                        body.appendChild(itemEl);
+                    });
+                    navList.appendChild(folderEl);
+                });
+
+                // 再渲染无斜杠的顶级任务
+                standaloneTasks.forEach(i => {
+                    const task = tasks[i];
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'nav-item';
+                    itemEl.dataset.target = 'task-' + i;
+                    itemEl.onclick = () => scrollToTask('task-' + i);
+                    itemEl.innerHTML = `
+                        <div class="nav-thumb-wrap">${task.thumb || ''}</div>
+                        <div class="nav-info">
+                            <div class="nav-title">${escapeHtml(task.frameName || '任务 ' + (i + 1))}</div>
+                            <div class="nav-meta">${task.bugs || 0} 个 Bug</div>
+                        </div>
+                    `;
+                    navList.appendChild(itemEl);
+                });
+            } else {
+                // 无文件夹 → 原样渲染
+                tasks.forEach((task, i) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'nav-item';
+                    itemEl.dataset.target = 'task-' + i;
+                    itemEl.onclick = () => scrollToTask('task-' + i);
+                    itemEl.innerHTML = `
+                        <div class="nav-thumb-wrap">${task.thumb || ''}</div>
+                        <div class="nav-info">
+                            <div class="nav-title">${escapeHtml(task.frameName || '任务 ' + (i + 1))}</div>
+                            <div class="nav-meta">${task.bugs || 0} 个 Bug</div>
+                        </div>
+                    `;
+                    navList.appendChild(itemEl);
+                });
+            }
+
+            // ★ 内容区渲染（始终平铺）
+            tasks.forEach((task, i) => {
                 const section = document.createElement('section');
                 section.className = 'task-section';
                 section.id = 'task-' + i;
-                
-                // 获取该任务的 bugs
+
                 const taskBugs = allBugs.filter(b => b.task_index === i);
                 const checkedCount = taskBugs.filter(b => b.checked).length;
-                
+                const hasNoBugs = taskBugs.length === 0;
+
                 section.innerHTML = `
                     <div class="task-header">
                         <div class="task-title-row">
-                            <h2 class="task-title">${task.frameName || '任务 ' + (i+1)}</h2>
+                            <h2 class="task-title">${escapeHtml(task.frameName || '任务 ' + (i+1))}</h2>
                         </div>
-
+                        ${hasNoBugs ? '<div class="no-bug-badge">🎉 零 Bug！完美走查</div>' : ''}
                     </div>
                     <div class="main-img-wrap">
                         <div class="img-pair" id="task-${i}-pair">
@@ -1494,7 +1739,7 @@
                             <tr>
                                 <td><input type="checkbox" class="r-bug-cb" data-id="${bug.bug_id}" data-task="${i}" ${bug.checked ? 'checked' : ''} onchange="toggleBug(${i}, ${bug.bug_id}, this)" /></td>
                                 <td class="r-bug-id-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">#${bug.bug_id}</td>
-                                <td>${bug.text || '-'}</td>
+                                <td>${escapeHtml(bug.text || '-')}</td>
                                 <td class="r-bug-status-td" style="color:${bug.checked ? '#00d68f' : '#ff5c5c'}">${bug.checked ? '✓ 已修复' : '待处理'}</td>
                                 <td><span class="pri-badge ${priClass}" style="display:inline-block;padding:1px 6px;font-size:10px;font-weight:700;font-family:JetBrains Mono,monospace;border-radius:3px;color:#fff;background:${priColor};">${pri}</span></td>
                                 <td><span class="bug-comment-toggle" onclick="toggleBugComments(${i}, ${bug.bug_id})" title="评论">💬<span class="bug-comment-count" id="comment-count-${i}-${bug.bug_id}"></span></span></td>
@@ -1535,7 +1780,6 @@
                             </div>
                         `;
 
-                        // 拖拽回弹交互
                         let isDragging = false;
                         let dragOffsetX = 0, dragOffsetY = 0;
                         let startClientX = 0, startClientY = 0;
@@ -1578,6 +1822,125 @@
             document.querySelectorAll('.r-bug-cb').forEach(cb => {
                 if (cb.checked) updateBugUI(cb);
             });
+
+            // ★ 启动彩带观察器
+            setupConfettiObserver();
+        }
+
+        // ===== 文件夹展开/折叠 =====
+        function toggleNavFolder(headerEl) {
+            const folder = headerEl.parentElement;
+            folder.classList.toggle('open');
+        }
+        window.toggleNavFolder = toggleNavFolder;
+
+        // ===== 彩带动效 =====
+        let confettiCanvas = null;
+        let confettiCtx = null;
+        let confettiParticles = [];
+        let confettiAnimId = null;
+        const _confettiShown = {}; // 记录已播放过的 task ID
+
+        function setupConfettiObserver() {
+            if (!reportData || !reportData.task_data) return;
+            const tasks = reportData.task_data;
+            const sections = document.querySelectorAll('.task-section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionEl = entry.target;
+                        const taskId = sectionEl.id; // 'task-0', 'task-1', ...
+                        const idx = parseInt(taskId.split('-')[1]);
+                        const taskBugs = allBugs.filter(b => b.task_index === idx);
+
+                        // 只对零 Bug 的任务触发彩带
+                        if (taskBugs.length === 0 && !_confettiShown[taskId]) {
+                            _confettiShown[taskId] = true;
+                            launchConfetti(sectionEl);
+                        }
+                    }
+                });
+            }, { threshold: 0.4 });
+
+            sections.forEach(s => observer.observe(s));
+        }
+
+        function launchConfetti(targetEl) {
+            // 确保 canvas 存在
+            if (!confettiCanvas) {
+                confettiCanvas = document.createElement('canvas');
+                confettiCanvas.className = 'confetti-overlay';
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+                document.body.appendChild(confettiCanvas);
+                confettiCtx = confettiCanvas.getContext('2d');
+                window.addEventListener('resize', () => {
+                    if (confettiCanvas) {
+                        confettiCanvas.width = window.innerWidth;
+                        confettiCanvas.height = window.innerHeight;
+                    }
+                });
+            }
+
+            // 生成粒子
+            const colors = ['#ff5c5c','#ffc048','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#01a3a4','#f368e0','#ff6348','#2ed573','#1e90ff','#ffa502'];
+            const rect = targetEl.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 120; i++) {
+                confettiParticles.push({
+                    x: cx,
+                    y: cy,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 1.2) * 14,
+                    w: Math.random() * 10 + 4,
+                    h: Math.random() * 6 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotV: (Math.random() - 0.5) * 15,
+                    opacity: 1,
+                    life: Math.random() * 0.6 + 0.8
+                });
+            }
+
+            if (!confettiAnimId) animateConfetti();
+        }
+
+        function animateConfetti() {
+            if (!confettiCtx) return;
+            const w = confettiCanvas.width;
+            const h = confettiCanvas.height;
+
+            confettiCtx.clearRect(0, 0, w, h);
+
+            confettiParticles = confettiParticles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.25; // 重力
+                p.rotation += p.rotV;
+                p.vx *= 0.99;
+                p.life -= 0.008;
+                p.opacity = Math.max(0, p.life);
+
+                if (p.life <= 0) return false;
+
+                confettiCtx.save();
+                confettiCtx.globalAlpha = p.opacity;
+                confettiCtx.translate(p.x, p.y);
+                confettiCtx.rotate(p.rotation * Math.PI / 180);
+                confettiCtx.fillStyle = p.color;
+                confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                confettiCtx.restore();
+                return true;
+            });
+
+            if (confettiParticles.length > 0) {
+                confettiAnimId = requestAnimationFrame(animateConfetti);
+            } else {
+                confettiAnimId = null;
+            }
         }
 
         function updateOverlay(slider, taskIndex) {
