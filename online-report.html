@@ -88,12 +88,12 @@
         body.dark .nav-folder-count{color:#666;}
         /* ===== 彩带动效 ===== */
         .confetti-overlay{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9997;}
-        .no-bug-badge{display:flex;justify-content:center;align-items:center;margin-top:12px;}
-        .no-bug-badge img{width:160px;height:auto;}
         .resize-handle{width:8px;cursor:col-resize;flex-shrink:0;background:#e4e6eb;transition:background .2s;position:relative;z-index:10;}
         .resize-handle:hover,.resize-handle:active{background:#6c5ce7;}
         .content-area{flex:1;overflow-y:auto;padding:20px;}
-        .task-section{margin:0 auto 30px;padding:20px;max-width:1000px;background:#fff;border-radius:12px;border:1px solid #e4e6eb;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:all .25s;}
+        .task-section{margin:0 auto 30px;padding:20px;max-width:1000px;background:#fff;border-radius:12px;border:1px solid #e4e6eb;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:all .25s;position:relative;overflow:visible;}
+        .no-bug-badge{position:absolute;top:-24px;right:-16px;z-index:10;}
+        .no-bug-badge img{width:140px;height:auto;opacity:0.92;}
         .task-header{margin-bottom:16px;}
         .task-title-row{display:flex;align-items:center;gap:10px;}
         .task-title{font-size:18px;font-weight:700;color:#222;}
@@ -1713,8 +1713,8 @@
                         <div class="task-title-row">
                             <h2 class="task-title">${escapeHtml(task.frameName || '任务 ' + (i+1))}</h2>
                         </div>
-                        ${hasNoBugs ? '<div class="no-bug-badge"><img src="nobugbadge.svg" alt="零 Bug" /></div>' : ''}
                     </div>
+                    ${hasNoBugs ? '<div class="no-bug-badge"><img src="nobugbadge.svg" alt="零 Bug" /></div>' : ''}
                     <div class="main-img-wrap">
                         <div class="img-pair" id="task-${i}-pair">
                             <img src="${task.designImg}" alt="设计稿" />
