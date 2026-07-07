@@ -88,12 +88,12 @@
         body.dark .nav-folder-count{color:#666;}
         /* ===== 彩带动效 ===== */
         .confetti-overlay{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9997;}
+        .no-bug-badge{position:absolute;top:-24px;right:-16px;z-index:10;}
+        .no-bug-badge img{width:140px;height:auto;opacity:0.92;}
         .resize-handle{width:8px;cursor:col-resize;flex-shrink:0;background:#e4e6eb;transition:background .2s;position:relative;z-index:10;}
         .resize-handle:hover,.resize-handle:active{background:#6c5ce7;}
         .content-area{flex:1;overflow-y:auto;padding:20px;}
         .task-section{margin:0 auto 30px;padding:20px;max-width:1000px;background:#fff;border-radius:12px;border:1px solid #e4e6eb;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:all .25s;position:relative;overflow:visible;}
-        .no-bug-badge{position:absolute;top:-24px;right:-16px;z-index:10;}
-        .no-bug-badge img{width:140px;height:auto;opacity:0.92;}
         .task-header{margin-bottom:16px;}
         .task-title-row{display:flex;align-items:center;gap:10px;}
         .task-title{font-size:18px;font-weight:700;color:#222;}
@@ -462,9 +462,30 @@
         // 配置
         const SUPABASE_URL = 'https://ijamfnfbypalayjgagrb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYW1mbmZieXBhbGF5amdhZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTkwMzgsImV4cCI6MjA5NDc5NTAzOH0.HGol63UNswYqLwiaNNv2yCUXayz8expgonYsi517rbo';
-        
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ★ 动态加载 Supabase SDK（多 CDN 降级，避免静态 import 失败导致页面卡死）
+        let supabase = null;
+        try {
+            const SB_CDN_URLS = [
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+                'https://esm.sh/@supabase/supabase-js@2',
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/module/index.js'
+            ];
+            for (const url of SB_CDN_URLS) {
+                try {
+                    const mod = await import(url);
+                    supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('[Report] Supabase ready:', url);
+                    break;
+                } catch(e) {
+                    console.warn('[Report] Import failed:', url, e.message);
+                }
+            }
+            if (!supabase) throw new Error('所有 CDN 均不可用');
+        } catch(e) {
+            document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center;padding:40px;"><h2>⚠️ SDK 加载失败</h2><p style="color:#888;margin-top:8px;">请检查网络连接后刷新页面</p><p style="color:#888;font-size:12px;">' + e.message + '</p></div>';
+            throw e; // 阻止后续代码执行
+        }
 
         // ===== 用户认证模块 =====
         let authUser = null;
@@ -2024,7 +2045,22 @@
             try {
                 if (localStorage.getItem('uirel-theme') === 'dark') document.body.classList.add('dark');
             } catch(e) {}
-            init();
+            // ★ 15 秒安全超时：无论如何都隐藏 loading overlay
+            setTimeout(function() {
+                var overlay = document.getElementById('loadingOverlay');
+                if (overlay && !overlay.classList.contains('hidden')) {
+                    overlay.classList.add('hidden');
+                    console.warn('[Report] Loading timeout - forcing overlay hide');
+                }
+            }, 15000);
+            init().catch(function(err) {
+                console.error('[Report] init() failed:', err);
+                var overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.innerHTML = '<div style="text-align:center;"><h2>⚠️ 加载失败</h2><p>' + (err.message || '未知错误') + '</p><p style="color:#888;font-size:12px;">请刷新页面重试</p></div>';
+                    overlay.classList.remove('hidden');
+                }
+            });
         })();
     </script>
 </body>
