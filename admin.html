@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI-REL 管理后台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#f0f2f5;--card:#fff;--border:#e4e6eb;--text:#333;--muted:#888;--primary:#6c5ce7;--primary-d:#5a4bd1;--danger:#ff5c5c;--success:#00d68f;--hover:#f0f1f8;}
+body.dark{--bg:#16162a;--card:#1e1e32;--border:#333355;--text:#d0d0dc;--muted:#888;--primary:#8b7cf7;--hover:#2a2a44;}
+html,body{height:100%;}
+body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .25s,color .25s;}
+
+/* ===== 登录页 ===== */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 32px;box-shadow:0 8px 32px rgba(0,0,0,.08);}
+.login-logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#6c5ce7,#8b7cf7);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#fff;font-weight:800;font-size:22px;letter-spacing:1px;}
+.login-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:4px;}
+.login-sub{text-align:center;font-size:13px;color:var(--muted);margin-bottom:26px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:var(--muted);}
+.field input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border .2s,box-shadow .2s;}
+.field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,92,231,.12);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-d);color:#fff;}
+.btn-danger{color:var(--danger);border-color:transparent;}
+.btn-danger:hover{background:rgba(255,92,92,.1);border-color:var(--danger);color:var(--danger);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-block{width:100%;padding:12px;font-size:14px;}
+.login-error{background:rgba(255,92,92,.1);color:var(--danger);border:1px solid rgba(255,92,92,.3);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px;display:none;}
+.login-error.show{display:block;}
+.login-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7;}
+
+/* ===== 后台布局 ===== */
+.app{display:none;min-height:100vh;flex-direction:column;}
+.app.show{display:flex;}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 24px;height:60px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;}
+.topbar-logo .dot{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6c5ce7,#8b7cf7);}
+.topbar-logo span{color:var(--primary);}
+.topbar-tabs{display:flex;gap:4px;margin-left:16px;flex:1;}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;border:1px solid transparent;}
+.tab:hover{background:var(--hover);color:var(--text);}
+.tab.active{background:var(--primary);color:#fff;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;}
+.icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border:1px solid var(--border);border-radius:20px;background:var(--card);font-size:12px;}
+.user-chip .av{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+
+.content{flex:1;padding:24px;max-width:1400px;width:100%;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:22px;font-weight:800;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+
+/* 统计卡片 */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .25s;}
+.stat-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,92,231,.1);}
+.stat-val{font-size:40px;font-family:'Bebas Neue',sans-serif;color:var(--primary);line-height:1;letter-spacing:1px;}
+.stat-val.danger{color:var(--danger);}
+.stat-val.success{color:var(--success);}
+.stat-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;margin-top:6px;letter-spacing:.5px;}
+.stat-extra{font-size:11px;color:var(--muted);margin-top:8px;}
+
+/* 表格 */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.table-toolbar{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;position:relative;}
+.search-box input{width:100%;padding:9px 14px 9px 36px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:13px;outline:none;transition:border .2s;}
+.search-box input:focus{border-color:var(--primary);}
+.search-box svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.4;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:12px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--hover);}
+.t-title{font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.t-title a{color:var(--primary);text-decoration:none;}
+.t-title a:hover{text-decoration:underline;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-purple{background:rgba(108,92,231,.15);color:var(--primary);}
+.badge-red{background:rgba(255,92,92,.15);color:var(--danger);}
+.badge-green{background:rgba(0,214,143,.15);color:var(--success);}
+.badge-gray{background:rgba(136,136,136,.15);color:var(--muted);}
+.badge-orange{background:rgba(255,165,0,.15);color:#ffa500;}
+.muted{color:var(--muted);font-size:12px;}
+.empty-row td{text-align:center;padding:50px;color:var(--muted);font-size:14px;}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--border);}
+.page-info{font-size:12px;color:var(--muted);}
+.page-btns{display:flex;gap:6px;}
+
+/* 加载 */
+.loader{display:flex;align-items:center;justify-content:center;padding:60px;}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.2);animation:slideIn .3s ease;display:flex;align-items:center;gap:8px;max-width:360px;}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+.toast.info{background:var(--primary);}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
+
+/* 模态框 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;animation:fade .2s;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:8px;}
+.modal-body{font-size:14px;color:var(--muted);margin-bottom:22px;line-height:1.7;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+.toggle{position:relative;width:42px;height:24px;border-radius:20px;background:var(--border);cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--success);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;}
+.toggle.on::after{transform:translateX(18px);}
+
+@media(max-width:680px){
+  .topbar{padding:0 12px;overflow-x:auto;}
+  .topbar-tabs{margin-left:8px;}
+  .tab{padding:7px 10px;font-size:12px;}
+  .content{padding:14px;}
+  .user-chip{display:none;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .t-title{max-width:160px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页 ===== -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo">UR</div>
+    <div class="login-title">UI-REL 管理后台</div>
+    <div class="login-sub">使用账号登录以管理报告与数据</div>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label>邮箱</label>
+        <input type="email" id="loginEmail" placeholder="admin@example.com" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">登录</button>
+    </form>
+    <div class="login-hint">
+      需要管理员权限。<br>
+      首次使用请在 <code>supabase-migration.sql</code> 末尾将自己设为管理员，<br>
+      或在 <code>admin.html</code> 的 <code>ADMIN_EMAILS</code> 中填入邮箱。
+    </div>
+  </div>
+</div>
+
+<!-- ===== 后台 ===== -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-logo"><div class="dot"></div>UI-REL <span>Admin</span></div>
+    <div class="topbar-tabs">
+      <div class="tab active" data-page="dashboard">仪表盘</div>
+      <div class="tab" data-page="reports">报告</div>
+      <div class="tab" data-page="bugs">Bug</div>
+      <div class="tab" data-page="users">用户</div>
+      <div class="tab" data-page="comments">评论</div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeBtn" title="切换深色">🌙</button>
+      <div class="user-chip"><div class="av" id="userAv">U</div><span id="userName">用户</span></div>
+      <button class="btn btn-sm" id="logoutBtn">退出</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- 仪表盘 -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-head"><div><div class="page-title">仪表盘</div><div class="page-sub">数据总览与最近活动</div></div>
+        <button class="btn btn-sm" onclick="loadDashboard()">刷新</button></div>
+      <div class="stats-grid" id="statsGrid"><div class="loader"><div class="spinner"></div></div></div>
+      <div class="page-title" style="font-size:16px;margin-bottom:14px;">最近报告</div>
+      <div class="table-card"><div id="recentReports"><div class="loader"><div class="spinner"></div></div></div></div>
+    </div>
+
+    <!-- 报告 -->
+    <div class="page" id="page-reports">
+      <div class="page-head"><div><div class="page-title">报告管理</div><div class="page-sub">查看、删除走查报告</div></div></div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="reportSearch" placeholder="搜索标题或报告ID...">
+          </div>
+          <button class="btn btn-sm" onclick="loadReports()">刷新</button>
+        </div>
+        <div id="reportsTable"><div class="loader"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Bug -->
+    <div class="page" id="page-bugs">
+      <div class="page-head"><div><div class="page-title">Bug 管理</div><div class="page-sub">查看、删除所有 Bug</div></div></div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="bugSearch" placeholder="搜索 Bug 内容或报告ID...">
+          </div>
+          <select id="bugFilter" class="btn btn-sm" style="padding:6px 10px;">
+            <option value="">全部状态</option>
+            <option value="unchecked">未确认</option>
+            <option value="checked">已确认</option>
+          </select>
+          <button class="btn btn-sm" onclick="loadBugs()">刷新</button>
+        </div>
+        <div id="bugsTable"><div class="loader"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- 用户 -->
+    <div class="page" id="page-users">
+      <div class="page-head"><div><div class="page-title">用户管理</div><div class="page-sub">管理注册用户与管理员权限</div></div>
+        <button class="btn btn-sm" onclick="loadUsers()">刷新</button></div>
+      <div class="table-card"><div id="usersTable"><div class="loader"><div class="spinner"></div></div></div></div>
+    </div>
+
+    <!-- 评论 -->
+    <div class="page" id="page-comments">
+      <div class="page-head"><div><div class="page-title">评论管理</div><div class="page-sub">查看、删除 Bug 评论</div></div>
+        <button class="btn btn-sm" onclick="loadComments()">刷新</button></div>
+      <div class="table-card"><div id="commentsTable"><div class="loader"><div class="spinner"></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 模态框 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">确认</div>
+    <div class="modal-body" id="modalBody">确定要执行此操作吗？</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="modalConfirm">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script type="module">
+// ============================================
+// 配置（与 online-report.html 一致）
+// ============================================
+const SUPABASE_URL = 'https://ijamfnfbypalayjgagrb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYW1mbmZieXBhbGF5amdhZ3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTkwMzgsImV4cCI6MjA5NDc5NTAzOH0.HGol63UNswYqLwiaNNv2yCUXayz8expgonYsi517rbo';
+
+// 管理员邮箱白名单（兜底，profiles.is_admin 可用前以此为准）
+// 填入你的邮箱即可直接获得管理员权限
+const ADMIN_EMAILS = [
+    'okshijian@qq.com'
+];
+
+const PAGE_SIZE = 20;
+const REPORT_BASE = window.location.origin + window.location.pathname.replace(/admin\.html$/, '') + 'online-report.html';
+
+// ============================================
+// 加载 Supabase SDK（多 CDN 降级）
+// ============================================
+let supabase = null;
+try {
+    const SB_CDN_URLS = [
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+        'https://esm.sh/@supabase/supabase-js@2',
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/module/index.js'
+    ];
+    for (const url of SB_CDN_URLS) {
+        try {
+            const mod = await import(url);
+            supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('[Admin] Supabase ready:', url);
+            break;
+        } catch(e) { console.warn('[Admin] Import failed:', url, e.message); }
+    }
+    if (!supabase) throw new Error('所有 CDN 均不可用');
+} catch(e) {
+    document.getElementById('loginWrap').innerHTML = '<div style="text-align:center;padding:60px;"><h2>SDK 加载失败</h2><p style="color:#888;margin-top:8px;">请检查网络连接后刷新</p></div>';
+    throw e;
+}
+
+// ============================================
+// 状态
+// ============================================
+let currentUser = null;
+let isAdmin = false;
+let reportPage = 0, bugPage = 0, userPage = 0, commentPage = 0;
+let reportTotal = 0, bugTotal = 0, userTotal = 0, commentTotal = 0;
+
+// ============================================
+// 工具
+// ============================================
+function toast(msg, type='info') {
+    const wrap = document.getElementById('toastWrap');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(120%)'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function esc(s){ return s==null?'':String(s); }
+function fmtDate(d){
+    if(!d) return '-';
+    const dt = new Date(d);
+    if(isNaN(dt)) return esc(d);
+    return dt.toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function fmtSize(n){
+    if(!n) return '0';
+    if(n<1024) return n+' B';
+    if(n<1048576) return (n/1024).toFixed(1)+' KB';
+    return (n/1048576).toFixed(1)+' MB';
+}
+
+// 模态框
+let modalCb = null;
+function confirmModal(title, body, cb){
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    modalCb = cb;
+    document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); modalCb=null; }
+document.getElementById('modalConfirm').onclick = function(){
+    const cb = modalCb; closeModal();
+    if(cb) cb();
+};
+
+// 分页渲染
+function renderPagination(containerId, page, total, loadFn){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    const from = total===0?0:page*PAGE_SIZE+1;
+    const to = Math.min((page+1)*PAGE_SIZE, total);
+    const totalPages = Math.ceil(total/PAGE_SIZE) || 1;
+    el.innerHTML = `<div class="page-info">共 ${total} 条，第 ${from}-${to} 条 / ${totalPages} 页</div>
+      <div class="page-btns">
+        <button class="btn btn-sm" ${page===0?'disabled':''} onclick="${loadFn}(${page-1})">上一页</button>
+        <button class="btn btn-sm" ${page>=totalPages-1?'disabled':''} onclick="${loadFn}(${page+1})">下一页</button>
+      </div>`;
+}
+
+// ============================================
+// 管理员判定
+// ============================================
+async function checkAdmin(user) {
+    if (!user) return false;
+    const email = user.email || '';
+    // 1. 白名单兜底
+    if (ADMIN_EMAILS.includes(email)) return true;
+    // 2. profiles.is_admin
+    try {
+        const { data, error } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+        if (!error && data && data.is_admin === true) return true;
+    } catch(e) { /* is_admin 列可能未创建 */ }
+    return false;
+}
+
+// ============================================
+// 登录
+// ============================================
+const loginForm = document.getElementById('loginForm');
+const loginBtn = document.getElementById('loginBtn');
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errBox = document.getElementById('loginError');
+    errBox.classList.remove('show');
+    loginBtn.disabled = true; loginBtn.textContent = '登录中...';
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        const admin = await checkAdmin(data.user);
+        if (!admin) {
+            await supabase.auth.signOut();
+            throw new Error('该账号没有管理员权限');
+        }
+        currentUser = data.user;
+        isAdmin = true;
+        showApp();
+    } catch(err) {
+        errBox.textContent = err.message || '登录失败';
+        errBox.classList.add('show');
+    } finally {
+        loginBtn.disabled = false; loginBtn.textContent = '登录';
+    }
+});
+
+function showApp() {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    const email = currentUser.email || 'U';
+    document.getElementById('userAv').textContent = email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent = email.split('@')[0];
+    loadDashboard();
+}
+
+document.getElementById('logoutBtn').onclick = async () => {
+    await supabase.auth.signOut();
+    location.reload();
+};
+
+// 恢复登录态
+(async function restoreSession(){
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            const admin = await checkAdmin(session.user);
+            if (admin) {
+                currentUser = session.user;
+                isAdmin = true;
+                showApp();
+            }
+        }
+    } catch(e) { console.warn('Session restore error:', e); }
+})();
+
+// ============================================
+// 主题
+// ============================================
+const themeBtn = document.getElementById('themeBtn');
+function applyTheme(dark){
+    document.body.classList.toggle('dark', dark);
+    themeBtn.textContent = dark ? '☀️' : '🌙';
+    try{ localStorage.setItem('ur-admin-theme', dark?'dark':'light'); }catch(e){}
+}
+const savedTheme = (()=>{ try{ return localStorage.getItem('ur-admin-theme'); }catch(e){ return null; } })();
+applyTheme(savedTheme === 'dark');
+themeBtn.onclick = () => applyTheme(!document.body.classList.contains('dark'));
+
+// ============================================
+// 标签页切换
+// ============================================
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const page = tab.dataset.page;
+        document.getElementById('page-'+page).classList.add('active');
+        if (page==='dashboard') loadDashboard();
+        else if (page==='reports') loadReports(0);
+        else if (page==='bugs') loadBugs(0);
+        else if (page==='users') loadUsers(0);
+        else if (page==='comments') loadComments(0);
+    };
+});
+
+// 搜索防抖
+let searchTimer;
+function debounce(fn, ms=400){ clearTimeout(searchTimer); searchTimer=setTimeout(fn, ms); }
+document.getElementById('reportSearch').oninput = () => debounce(()=>loadReports(0));
+document.getElementById('bugSearch').oninput = () => debounce(()=>loadBugs(0));
+document.getElementById('bugFilter').onchange = () => loadBugs(0);
+
+// 暴露给 inline onclick
+window.loadReports = (p)=>loadReports(p);
+window.loadBugs = (p)=>loadBugs(p);
+window.loadUsers = (p)=>loadUsers(p);
+window.loadComments = (p)=>loadComments(p);
+window.loadDashboard = loadDashboard;
+window.closeModal = closeModal;
+window.deleteReport = deleteReport;
+window.deleteBug = deleteBug;
+window.deleteComment = deleteComment;
+window.toggleAdmin = toggleAdmin;
+
+// ============================================
+// 仪表盘
+// ============================================
+async function loadDashboard(){
+    const grid = document.getElementById('statsGrid');
+    const recent = document.getElementById('recentReports');
+    grid.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    recent.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    try {
+        const [rep, bugs, users, comments, visits] = await Promise.all([
+            supabase.from('reports').select('report_id', { count: 'exact', head: true }),
+            supabase.from('bugs').select('id', { count: 'exact', head: true }),
+            supabase.from('profiles').select('id', { count: 'exact', head: true }),
+            supabase.from('bug_comments').select('id', { count: 'exact', head: true }),
+            supabase.from('report_visits').select('id', { count: 'exact', head: true })
+        ]);
+        const rc = rep.count||0, bc = bugs.count||0, uc = users.count||0, cc = comments.count||0, vc = visits.count||0;
+        const uncheckedRes = await supabase.from('bugs').select('id', { count:'exact', head:true }).eq('checked', false);
+        const uc2 = uncheckedRes.count||0;
+        grid.innerHTML = `
+          <div class="stat-card"><div class="stat-val">${rc}</div><div class="stat-lbl">报告总数</div></div>
+          <div class="stat-card"><div class="stat-val danger">${bc}</div><div class="stat-lbl">Bug 总数</div><div class="stat-extra">未确认 ${uc2}</div></div>
+          <div class="stat-card"><div class="stat-val success">${uc}</div><div class="stat-lbl">注册用户</div></div>
+          <div class="stat-card"><div class="stat-val">${cc}</div><div class="stat-lbl">评论数</div></div>
+          <div class="stat-card"><div class="stat-val">${vc}</div><div class="stat-lbl">报告访问记录</div></div>`;
+        // 最近报告
+        const { data: recentReports } = await supabase.from('reports')
+            .select('report_id,title,task_count,bug_count,created_at')
+            .order('created_at',{ascending:false}).limit(8);
+        renderReportsTable(recent, recentReports||[], false);
+    } catch(e) {
+        grid.innerHTML = `<div class="stat-card" style="grid-column:1/-1"><div class="stat-val danger">!</div><div class="stat-lbl">加载失败</div><div class="stat-extra">${esc(e.message)}</div></div>`;
+    }
+}
+
+// ============================================
+// 报告
+// ============================================
+async function loadReports(page){
+    if(page!=null) reportPage = page;
+    const container = document.getElementById('reportsTable');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    const q = document.getElementById('reportSearch').value.trim();
+    try {
+        let query = supabase.from('reports')
+            .select('report_id,title,task_count,bug_count,file_key,created_at', { count: 'exact' })
+            .order('created_at',{ascending:false})
+            .range(reportPage*PAGE_SIZE, (reportPage+1)*PAGE_SIZE-1);
+        if (q) query = query.or(`title.ilike.%${q}%,report_id.ilike.%${q}%`);
+        const { data, error, count } = await query;
+        if (error) throw error;
+        reportTotal = count||0;
+        renderReportsTable(container, data||[], true);
+    } catch(e) {
+        container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}</div>`;
+    }
+}
+
+function renderReportsTable(container, data, withPager){
+    if (!data || data.length === 0) {
+        container.innerHTML = '<table><tbody><tr class="empty-row"><td>暂无报告</td></tr></tbody></table>';
+        return;
+    }
+    let rows = data.map(r => {
+        const title = r.title || r.report_id;
+        const dispTitle = title.split('‖')[0];
+        const author = title.includes('‖') ? title.split('‖')[1] : '';
+        const url = REPORT_BASE + '?id=' + encodeURIComponent(r.report_id);
+        return `<tr>
+          <td class="t-title"><a href="${url}" target="_blank">${esc(dispTitle)}</a>${author?`<br><span class="muted">@${esc(author)}</span>`:''}</td>
+          <td><span class="badge badge-purple">${r.task_count||0}</span></td>
+          <td><span class="badge badge-red">${r.bug_count||0}</span></td>
+          <td class="muted">${fmtDate(r.created_at)}</td>
+          <td style="white-space:nowrap;">
+            <a class="btn btn-sm" href="${url}" target="_blank">查看</a>
+            <button class="btn btn-sm btn-danger" onclick="deleteReport('${esc(r.report_id)}')">删除</button>
+          </td></tr>`;
+    }).join('');
+    container.innerHTML = `<table><thead><tr><th>标题</th><th>任务</th><th>Bug</th><th>创建时间</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`;
+    if (withPager) {
+        const pd = document.createElement('div');
+        pd.className = 'pagination'; pd.id = 'reportsPager';
+        container.appendChild(pd);
+        renderPagination('reportsPager', reportPage, reportTotal, 'loadReports');
+    }
+}
+
+async function deleteReport(reportId){
+    confirmModal('删除报告', `确定删除报告 <b>${esc(reportId)}</b> 吗？<br>该报告下的所有 Bug 也会一并删除，此操作不可恢复。`, async () => {
+        try {
+            // 先删 bugs，再删报告
+            await supabase.from('bugs').delete().eq('report_id', reportId);
+            await supabase.from('bug_comments').delete().eq('report_id', reportId);
+            await supabase.from('report_visits').delete().eq('report_id', reportId);
+            const { error } = await supabase.from('reports').delete().eq('report_id', reportId);
+            if (error) throw error;
+            toast('报告已删除', 'success');
+            loadReports();
+            loadDashboard();
+        } catch(e) { toast('删除失败：'+e.message, 'error'); }
+    });
+}
+
+// ============================================
+// Bug
+// ============================================
+async function loadBugs(page){
+    if(page!=null) bugPage = page;
+    const container = document.getElementById('bugsTable');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    const q = document.getElementById('bugSearch').value.trim();
+    const filter = document.getElementById('bugFilter').value;
+    try {
+        let query = supabase.from('bugs')
+            .select('id,bug_id,report_id,task_index,x,y,text,priority,checked,checked_by', { count:'exact' })
+            .order('id',{ascending:false})
+            .range(bugPage*PAGE_SIZE, (bugPage+1)*PAGE_SIZE-1);
+        if (q) query = query.or(`text.ilike.%${q}%,report_id.ilike.%${q}%`);
+        if (filter === 'checked') query = query.eq('checked', true);
+        if (filter === 'unchecked') query = query.eq('checked', false);
+        const { data, error, count } = await query;
+        if (error) throw error;
+        bugTotal = count||0;
+        if (!data || data.length===0) {
+            container.innerHTML = '<table><tbody><tr class="empty-row"><td>暂无 Bug</td></tr></tbody></table>';
+            return;
+        }
+        const rows = data.map(b => {
+            const pri = b.priority||'P3';
+            const priCls = pri==='P1'?'badge-red':pri==='P2'?'badge-orange':'badge-gray';
+            return `<tr>
+              <td class="t-title" style="max-width:220px">${esc(b.text||'(无描述)')}</td>
+              <td><span class="muted">#${b.task_index!=null?b.task_index:'-'}</span></td>
+              <td><span class="badge ${priCls}">${esc(pri)}</span></td>
+              <td>${b.checked?'<span class="badge badge-green">已确认</span>':'<span class="badge badge-gray">未确认</span>'}</td>
+              <td class="t-title" style="max-width:160px"><span class="muted">${esc(b.report_id||'')}</span></td>
+              <td><button class="btn btn-sm btn-danger" onclick="deleteBug(${b.id})">删除</button></td>
+            </tr>`;
+        }).join('');
+        container.innerHTML = `<table><thead><tr><th>内容</th><th>任务</th><th>优先级</th><th>状态</th><th>报告</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`;
+        const pd = document.createElement('div'); pd.className='pagination'; pd.id='bugsPager'; container.appendChild(pd);
+        renderPagination('bugsPager', bugPage, bugTotal, 'loadBugs');
+    } catch(e) { container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}</div>`; }
+}
+
+async function deleteBug(id){
+    confirmModal('删除 Bug', `确定删除 Bug #${id} 吗？`, async () => {
+        const { error } = await supabase.from('bugs').delete().eq('id', id);
+        if (error) { toast('删除失败：'+error.message,'error'); return; }
+        toast('Bug 已删除','success'); loadBugs();
+    });
+}
+
+// ============================================
+// 用户
+// ============================================
+async function loadUsers(page){
+    if(page!=null) userPage = page;
+    const container = document.getElementById('usersTable');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    try {
+        const { data, error, count } = await supabase.from('profiles')
+            .select('id,email,display_name,is_admin,updated_at', { count:'exact' })
+            .order('updated_at',{ascending:false})
+            .range(userPage*PAGE_SIZE, (userPage+1)*PAGE_SIZE-1);
+        if (error) throw error;
+        userTotal = count||0;
+        if (!data || data.length===0) {
+            container.innerHTML = '<table><tbody><tr class="empty-row"><td>暂无用户</td></tr></tbody></table>';
+            return;
+        }
+        const rows = data.map(u => {
+            const admin = u.is_admin===true;
+            const isSelf = u.id === currentUser?.id;
+            return `<tr>
+              <td class="t-title" style="max-width:200px">${esc(u.email||'-')}</td>
+              <td>${esc(u.display_name||'-')}</td>
+              <td>${admin?'<span class="badge badge-purple">管理员</span>':'<span class="badge badge-gray">普通用户</span>'}</td>
+              <td class="muted">${fmtDate(u.updated_at)}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="toggle ${admin?'on':''}" onclick="toggleAdmin('${u.id}', ${admin})" ${isSelf?'title="不能修改自己的权限" style="opacity:.4;pointer-events:none"':''}></div>
+                  <span class="muted" style="font-size:12px">${admin?'取消管理员':'设为管理员'}</span>
+                </div>
+              </td>
+            </tr>`;
+        }).join('');
+        container.innerHTML = `<table><thead><tr><th>邮箱</th><th>显示名</th><th>角色</th><th>更新时间</th><th>权限</th></tr></thead><tbody>${rows}</tbody></table>`;
+        const pd = document.createElement('div'); pd.className='pagination'; pd.id='usersPager'; container.appendChild(pd);
+        renderPagination('usersPager', userPage, userTotal, 'loadUsers');
+    } catch(e) { container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}<br><span style="font-size:12px">提示：请先执行 supabase-migration.sql 添加 is_admin 列</span></div>`; }
+}
+
+async function toggleAdmin(userId, currentlyAdmin){
+    const next = !currentlyAdmin;
+    const { error } = await supabase.from('profiles').update({ is_admin: next }).eq('id', userId);
+    if (error) { toast('更新失败：'+error.message, 'error'); return; }
+    toast(next?'已设为管理员':'已取消管理员', 'success');
+    loadUsers();
+}
+
+// ============================================
+// 评论
+// ============================================
+async function loadComments(page){
+    if(page!=null) commentPage = page;
+    const container = document.getElementById('commentsTable');
+    container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    try {
+        const { data, error, count } = await supabase.from('bug_comments')
+            .select('id,bug_id,report_id,author_name,content,created_at', { count:'exact' })
+            .order('created_at',{ascending:false})
+            .range(commentPage*PAGE_SIZE, (commentPage+1)*PAGE_SIZE-1);
+        if (error) throw error;
+        commentTotal = count||0;
+        if (!data || data.length===0) {
+            container.innerHTML = '<table><tbody><tr class="empty-row"><td>暂无评论</td></tr></tbody></table>';
+            return;
+        }
+        const rows = data.map(c => `<tr>
+          <td class="t-title" style="max-width:300px">${esc(c.content||'')}</td>
+          <td>${esc(c.author_name||'-')}</td>
+          <td class="t-title" style="max-width:140px"><span class="muted">${esc(c.report_id||'')}</span></td>
+          <td class="muted">${fmtDate(c.created_at)}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteComment(${c.id})">删除</button></td>
+        </tr>`).join('');
+        container.innerHTML = `<table><thead><tr><th>内容</th><th>作者</th><th>报告</th><th>时间</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`;
+        const pd = document.createElement('div'); pd.className='pagination'; pd.id='commentsPager'; container.appendChild(pd);
+        renderPagination('commentsPager', commentPage, commentTotal, 'loadComments');
+    } catch(e) { container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}</div>`; }
+}
+
+async function deleteComment(id){
+    confirmModal('删除评论', `确定删除这条评论吗？`, async () => {
+        const { error } = await supabase.from('bug_comments').delete().eq('id', id);
+        if (error) { toast('删除失败：'+error.message,'error'); return; }
+        toast('评论已删除','success'); loadComments();
+    });
+}
+
+</script>
+</body>
+</html>
