@@ -653,10 +653,20 @@ async function loadUsers(page){
     const container = document.getElementById('usersTable');
     container.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
     try {
-        const { data, error, count } = await supabase.from('profiles')
+        let hasAdminCol = true;
+        let res = await supabase.from('profiles')
             .select('id,email,display_name,is_admin,updated_at', { count:'exact' })
             .order('updated_at',{ascending:false})
             .range(userPage*PAGE_SIZE, (userPage+1)*PAGE_SIZE-1);
+        // 若 is_admin 列不存在，降级查询基本字段
+        if (res.error && res.error.message && res.error.message.includes('is_admin')) {
+            hasAdminCol = false;
+            res = await supabase.from('profiles')
+                .select('id,email,display_name,updated_at', { count:'exact' })
+                .order('updated_at',{ascending:false})
+                .range(userPage*PAGE_SIZE, (userPage+1)*PAGE_SIZE-1);
+        }
+        const { data, error, count } = res;
         if (error) throw error;
         userTotal = count||0;
         if (!data || data.length===0) {
@@ -664,25 +674,34 @@ async function loadUsers(page){
             return;
         }
         const rows = data.map(u => {
-            const admin = u.is_admin===true;
+            const admin = hasAdminCol && u.is_admin===true;
             const isSelf = u.id === currentUser?.id;
             return `<tr>
               <td class="t-title" style="max-width:200px">${esc(u.email||'-')}</td>
               <td>${esc(u.display_name||'-')}</td>
-              <td>${admin?'<span class="badge badge-purple">管理员</span>':'<span class="badge badge-gray">普通用户</span>'}</td>
+              ${hasAdminCol ? `<td>${admin?'<span class="badge badge-purple">管理员</span>':'<span class="badge badge-gray">普通用户</span>'}</td>` : ''}
               <td class="muted">${fmtDate(u.updated_at)}</td>
               <td>
-                <div style="display:flex;align-items:center;gap:8px;">
+                ${hasAdminCol ? `<div style="display:flex;align-items:center;gap:8px;">
                   <div class="toggle ${admin?'on':''}" onclick="toggleAdmin('${u.id}', ${admin})" ${isSelf?'title="不能修改自己的权限" style="opacity:.4;pointer-events:none"':''}></div>
                   <span class="muted" style="font-size:12px">${admin?'取消管理员':'设为管理员'}</span>
-                </div>
+                </div>` : '<span class="muted">需执行 migration</span>'}
               </td>
             </tr>`;
         }).join('');
-        container.innerHTML = `<table><thead><tr><th>邮箱</th><th>显示名</th><th>角色</th><th>更新时间</th><th>权限</th></tr></thead><tbody>${rows}</tbody></table>`;
+        const head = hasAdminCol
+            ? '<th>邮箱</th><th>显示名</th><th>角色</th><th>更新时间</th><th>权限</th>'
+            : '<th>邮箱</th><th>显示名</th><th>更新时间</th><th>权限</th>';
+        container.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+        if (!hasAdminCol) {
+            const tip = document.createElement('div');
+            tip.style.cssText = 'padding:12px 18px;background:rgba(255,165,0,.1);color:#b38a00;font-size:13px;border-top:1px solid var(--border);';
+            tip.innerHTML = '提示：profiles 表缺少 is_admin 列。请去 Supabase Dashboard → SQL Editor 执行 <code>supabase-migration.sql</code> 第 7 段，启用管理员权限切换。';
+            container.appendChild(tip);
+        }
         const pd = document.createElement('div'); pd.className='pagination'; pd.id='usersPager'; container.appendChild(pd);
         renderPagination('usersPager', userPage, userTotal, 'loadUsers');
-    } catch(e) { container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}<br><span style="font-size:12px">提示：请先执行 supabase-migration.sql 添加 is_admin 列</span></div>`; }
+    } catch(e) { container.innerHTML = `<div class="empty-row">加载失败：${esc(e.message)}</div>`; }
 }
 
 async function toggleAdmin(userId, currentlyAdmin){
