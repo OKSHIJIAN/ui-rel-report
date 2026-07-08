@@ -365,11 +365,9 @@ function renderPagination(containerId, page, total, loadFn){
 // 管理员判定
 // ============================================
 async function checkAdmin(user) {
-    if (!user) return false;
-    const email = user.email || '';
-    // 1. 白名单兜底
-    if (ADMIN_EMAILS.includes(email)) return true;
-    // 2. profiles.is_admin
+    if (!user || !user.email) return false;
+    const email = (user.email || '').toLowerCase().trim();
+    if (email && ADMIN_EMAILS.map(e => e.toLowerCase().trim()).includes(email)) return true;
     try {
         const { data, error } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
         if (!error && data && data.is_admin === true) return true;
@@ -393,12 +391,17 @@ loginForm.addEventListener('submit', async (e) => {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const admin = await checkAdmin(data.user);
+        // 兼容不同 CDN 版本返回结构
+        const user = data.user || data.session?.user || null;
+        if (!user || !user.email) {
+            throw new Error('登录信息不完整，请刷新后重试');
+        }
+        const admin = await checkAdmin(user);
         if (!admin) {
             await supabase.auth.signOut();
-            throw new Error('该账号没有管理员权限');
+            throw new Error('该账号没有管理员权限（' + user.email + '）');
         }
-        currentUser = data.user;
+        currentUser = user;
         isAdmin = true;
         showApp();
     } catch(err) {
@@ -428,9 +431,10 @@ document.getElementById('logoutBtn').onclick = async () => {
     try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-            const admin = await checkAdmin(session.user);
+            const user = session.user;
+            const admin = await checkAdmin(user);
             if (admin) {
-                currentUser = session.user;
+                currentUser = user;
                 isAdmin = true;
                 showApp();
             }
